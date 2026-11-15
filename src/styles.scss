@@ -1,1 +1,10 @@
-/* You can add global styles to this file, and also import other style files */
+/* Site entièrement sombre : force le mode sombre des thèmes PrimeNG (light-dark()) */
+:root {
+  color-scheme: dark;
+}
+
+body {
+  margin: 0;
+  background: var(--p-surface-950); /* #1a1a1a */
+  color: var(--p-text-color); /* #ffffff */
+}
