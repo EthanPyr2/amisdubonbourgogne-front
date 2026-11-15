@@ -3,7 +3,7 @@ import {HttpClient} from '@angular/common/http';
 import {Observable} from 'rxjs';
 import {Wine} from '../model/wine.model';
 
-@Injectable({provideIn: "root"})
+@Injectable({providedIn: "root"})
 export class WinePublicService {
   private readonly http = inject(HttpClient);
   private readonly url = "/api/wines"

@@ -11,7 +11,7 @@ export class WineAdminService {
   listAdmin(): Observable<Wine[]>{
     return this.http.get<Wine[]>(`${this.url}`)
   }
-  detailAdmin(id): Observable<Wine>{
-    return this.http.get<Wine>(`${this.url}/{id}`)
+  detailAdmin(id: number): Observable<Wine>{
+    return this.http.get<Wine>(`${this.url}/${id}`)
   }
 }
