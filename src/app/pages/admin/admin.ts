@@ -1,4 +1,4 @@
-import { Component, computed, inject, signal } from '@angular/core';
+import { Component, ElementRef, computed, inject, signal, viewChild } from '@angular/core';
 import { FormsModule, NgForm } from '@angular/forms';
 import { ButtonModule } from 'primeng/button';
 import { InputNumberModule } from 'primeng/inputnumber';
@@ -44,6 +44,21 @@ interface WineForm {
   vintage: number | null;
   formats: FormatForm[];
   description: string;
+}
+
+/** Formulaire rempli avec un vin existant (mode « Modifier ») */
+function wineToForm(wine: Wine): WineForm {
+  return {
+    producer: wine.producer,
+    cuvee: wine.cuvee ?? '',
+    region: wine.region.name,
+    appellation: wine.appellation,
+    color: wine.color,
+    grapes: wine.grapes ?? '',
+    vintage: wine.vintage,
+    formats: wine.formats.map((f) => ({ volumeCl: f.volumeCl, price: f.price })),
+    description: wine.description ?? '',
+  };
 }
 
 /** Formulaire vide, avec une ligne de format à remplir */
@@ -102,6 +117,26 @@ export class Admin {
   }
 
   private readonly wineAdminService = inject(WineAdminService);
+
+  /** Vin en cours de modification (null = le formulaire sert à ajouter un vin) */
+  protected readonly editing = signal<Wine | null>(null);
+  private readonly wineForm = viewChild.required<NgForm>('wineForm');
+  private readonly formPanel = viewChild.required<ElementRef<HTMLElement>>('formPanel');
+
+  /** Bouton « Modifier » d'une ligne : remplit le formulaire avec ce vin */
+  protected editWine(wine: Wine): void {
+    this.wineForm().resetForm(); // efface les erreurs affichées par un essai précédent
+    this.wine = wineToForm(wine);
+    this.editing.set(wine);
+    this.formPanel().nativeElement.scrollIntoView({ behavior: 'smooth', block: 'start' });
+  }
+
+  /** « Annuler » : le formulaire repasse en mode « Ajouter un vin » */
+  protected cancelEdit(): void {
+    this.wineForm().resetForm();
+    this.wine = emptyWine();
+    this.editing.set(null);
+  }
 
   /** Tous les vins chargés depuis le back */
   protected readonly wines = signal<Wine[]>([]);
@@ -181,7 +216,10 @@ export class Admin {
       return;
     }
     this.wineAdminService.delete(wine.id!).subscribe({
-      next: () => this.wines.update((wines) => wines.filter((w) => w.id !== wine.id)),
+      next: () => {
+        this.wines.update((wines) => wines.filter((w) => w.id !== wine.id));
+        if (this.editing()?.id === wine.id) this.cancelEdit(); // le vin modifié n'existe plus
+      },
       error: (err) => {
         console.error('Échec de la suppression', err.status);
         this.loadWines(); // on recharge pour afficher l'état réel
@@ -218,14 +256,18 @@ export class Admin {
       formats: this.wine.formats.map((f) => ({ volumeCl: f.volumeCl!, price: f.price! })),
     };
 
-    // 3. On envoie. Rien ne part tant qu'on n'a pas appelé subscribe()
-    this.wineAdminService.create(request).subscribe({
+    // 3. On envoie : PUT si on modifie un vin, POST si on en ajoute un.
+    //    Rien ne part tant qu'on n'a pas appelé subscribe().
+    const editing = this.editing();
+    const save$ = editing
+      ? this.wineAdminService.update(editing.id!, request)
+      : this.wineAdminService.create(request);
+    save$.subscribe({
       next: () => {
-        form.resetForm();
-        this.wine = emptyWine();
-        this.loadWines(); // le nouveau vin apparaît dans le tableau
+        this.cancelEdit(); // vide le formulaire et repasse en mode « Ajouter »
+        this.loadWines(); // le tableau affiche le vin ajouté ou modifié
       },
-      error: (err) => console.error('Échec de la création', err.status, err.error),
+      error: (err) => console.error(editing ? 'Échec de la modification' : 'Échec de la création', err.status, err.error),
     });
   }
 }

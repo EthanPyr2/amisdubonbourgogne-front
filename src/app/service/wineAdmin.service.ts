@@ -30,6 +30,11 @@ export class WineAdminService {
   }
 
   /** POST /api/admin/wines : le back renvoie le vin créé (avec son id et son slug) */
+  /** PUT /api/admin/wines/{id} : remplace les infos du vin (le slug ne change pas) */
+  update(id: number, wine: WineRequest): Observable<Wine> {
+    return this.http.put<Wine>(`${this.url}/${id}`, wine);
+  }
+
   create(wine: WineRequest): Observable<Wine>{
     return this.http.post<Wine>(this.url, wine);
   }
