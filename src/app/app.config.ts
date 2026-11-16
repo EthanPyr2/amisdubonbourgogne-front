@@ -1,5 +1,6 @@
 import { ApplicationConfig, provideBrowserGlobalErrorListeners, provideZonelessChangeDetection } from '@angular/core';
 import { provideRouter } from '@angular/router';
+import { provideHttpClient, withFetch } from '@angular/common/http';
 import { providePrimeNG } from 'primeng/config';
 import { AmisDuBonBourgognePreset } from './theme';
 
@@ -10,10 +11,16 @@ export const appConfig: ApplicationConfig = {
     provideBrowserGlobalErrorListeners(),
     provideZonelessChangeDetection(),
     provideRouter(routes),
+    provideHttpClient(withFetch()),
     providePrimeNG({
+      license:
+        'eyJpZCI6IjIwYzM4ZjYyLTFhZjItNDk1OC1iZmEwLTAwN2YxYzU1MWZlNSIsInByb2R1Y3QiOiJwcmltZXVpIiwidGllciI6ImNvbW11bml0eSIsInR5cGUiOiJkZXYiLCJpYXQiOjE3OTQ4MjUxNDUsImV4cCI6MTgyNjM2MTE0NX0.eyP8a1btTBISsBh8vxxQOtBvbMbXP_4WB2VfWwSg3-iLW1u9N2Ae4gP2X69LFZD-PZ8B9k8jp30YjCqbELKQAQ',
       theme: {
         preset: AmisDuBonBourgognePreset,
-        options: {},
+        options: {
+          // Place les styles PrimeNG dans la couche « primeng » (voir src/tailwind.css)
+          cssLayer: { name: 'primeng', order: 'theme, base, primeng' },
+        },
       },
     }),
   ]

@@ -1,1 +1,107 @@
-<p>admin works!</p>
+
+<section class="max-w-xl rounded-2xl border border-(--app-border-subtle) bg-(--p-content-background) p-10">
+
+  <header class="mb-10 flex items-start justify-between gap-6">
+    <div>
+      <h2 class="font-display text-4xl text-(--p-text-color)">Ajouter un vin</h2>
+      <p class="mt-3 text-(--p-text-muted-color)">Renseignez les informations de la nouvelle cuvée.</p>
+    </div>
+  </header>
+
+  <form #wineForm="ngForm" (ngSubmit)="onSubmit(wineForm)" class="grid grid-cols-2 gap-x-5 gap-y-6">
+    <div class="flex flex-col gap-2">
+      <label pLabel for="producer" class="text-sm font-semibold">
+        Producteur <span class="text-(--p-primary-400)">*</span>
+      </label>
+      <input pInputText id="producer" name="producer" [(ngModel)]="wine.producer" required
+             placeholder="Ex. Milan" class="h-14 w-full rounded-lg border-(--app-border-field)" />
+    </div>
+
+    <div class="flex flex-col gap-2">
+      <label pLabel for="cuvee" class="text-sm font-semibold">Cuvée</label>
+      <input pInputText id="cuvee" name="cuvee" [(ngModel)]="wine.cuvee"
+             placeholder="Ex. Les Clos Roussots" class="h-14 w-full rounded-lg border-(--app-border-field)" />
+    </div>
+
+    <div class="flex flex-col gap-2">
+      <label pLabel for="region" class="text-sm font-semibold">
+        Région <span class="text-(--p-primary-400)">*</span>
+      </label>
+      <input pInputText id="region" name="region" [(ngModel)]="wine.region" required
+             placeholder="Ex. Bourgogne" class="h-14 w-full rounded-lg border-(--app-border-field)" />
+    </div>
+
+    <div class="flex flex-col gap-2">
+      <label pLabel for="appellation" class="text-sm font-semibold">
+        Appellation <span class="text-(--p-primary-400)">*</span>
+      </label>
+      <input pInputText id="appellation" name="appellation" [(ngModel)]="wine.appellation" required
+             placeholder="Ex. Maranges 1er Cru" class="h-14 w-full rounded-lg border-(--app-border-field)" />
+    </div>
+
+    <div class="flex flex-col gap-2">
+      <label pLabel for="color" class="text-sm font-semibold">
+        Couleur <span class="text-(--p-primary-400)">*</span>
+      </label>
+      <p-select inputId="color" name="color" [(ngModel)]="wine.color" required
+                [options]="colors" optionLabel="label" optionValue="value" placeholder="Ex. Rouge"
+                class="h-14 w-full items-center rounded-lg border-(--app-border-field)" />
+    </div>
+
+    <div class="flex flex-col gap-2">
+      <label pLabel for="grapes" class="text-sm font-semibold">Cépages</label>
+      <input pInputText id="grapes" name="grapes" [(ngModel)]="wine.grapes"
+             placeholder="Ex. Pinot noir" class="h-14 w-full rounded-lg border-(--app-border-field)" />
+    </div>
+
+    <div class="col-span-2 flex flex-col gap-2">
+      <label pLabel for="vintage" class="text-sm font-semibold">Millésime</label>
+      <p-inputnumber inputId="vintage" name="vintage" [(ngModel)]="wine.vintage"
+                     [useGrouping]="false" [min]="1900" [max]="2100" placeholder="Ex. 2021"
+                     class="w-full" inputStyleClass="h-14 w-full rounded-lg border-(--app-border-field)" />
+    </div>
+
+    <!-- Formats : une ligne par taille de bouteille, chacune avec son prix -->
+    <fieldset class="col-span-2 flex flex-col gap-3">
+      <legend class="mb-2 text-sm font-semibold">
+        Formats et prix <span class="text-(--p-primary-400)">*</span>
+      </legend>
+
+      @for (format of wine.formats; track format; let i = $index) {
+        <div class="grid grid-cols-[1fr_1fr_auto] items-end gap-3">
+          <div class="flex flex-col gap-2">
+            <label pLabel [for]="'volume' + i" class="text-xs text-(--p-text-muted-color)">Volume (cl)</label>
+            <p-inputnumber [inputId]="'volume' + i" [name]="'volume' + i" [(ngModel)]="format.volumeCl" required
+                           [useGrouping]="false" [min]="1" [maxFractionDigits]="1" placeholder="Ex. 75"
+                           class="w-full" inputStyleClass="h-14 w-full rounded-lg border-(--app-border-field)" />
+          </div>
+          <div class="flex flex-col gap-2">
+            <label pLabel [for]="'price' + i" class="text-xs text-(--p-text-muted-color)">Prix (€)</label>
+            <p-inputnumber [inputId]="'price' + i" [name]="'price' + i" [(ngModel)]="format.price" required
+                           mode="decimal" [minFractionDigits]="2" [maxFractionDigits]="2" [min]="0"
+                           locale="fr-BE" placeholder="Ex. 32,00"
+                           class="w-full" inputStyleClass="h-14 w-full rounded-lg border-(--app-border-field)" />
+          </div>
+          <button pButton type="button" [text]="true" severity="secondary" class="h-14"
+                  [disabled]="wine.formats.length === 1" (click)="removeFormat(i)"
+                  [attr.aria-label]="'Retirer le format ' + (i + 1)">✕</button>
+        </div>
+      }
+
+      <button pButton type="button" [outlined]="true" class="self-start rounded-lg" (click)="addFormat()">
+        + Ajouter un format
+      </button>
+    </fieldset>
+
+    <div class="col-span-2 flex flex-col gap-2">
+      <label pLabel for="description" class="text-sm font-semibold">Description</label>
+      <textarea pTextarea id="description" name="description" [(ngModel)]="wine.description" rows="4"
+                placeholder="Notes de dégustation, cépage, accords mets et vins…"
+                class="w-full resize-y rounded-lg border-(--app-border-field)"></textarea>
+    </div>
+
+    <button pButton type="submit" class="col-span-2 mt-2 h-14 w-full justify-center rounded-lg text-base font-semibold">
+      + Ajouter à la carte
+    </button>
+  </form>
+</section>

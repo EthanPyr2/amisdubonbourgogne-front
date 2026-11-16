@@ -3,7 +3,7 @@ import Nora from '@primeuix/themes/nora';
 import type { Preset } from '@primeuix/themes/types';
 
 /*
- * Charte graphique « Les amis du bon Bourgogne » (site 100 % sombre)
+ * Charte graphique « Les amis du bon Bourgogne » (mode sombre ; le mode clair en est l'inverse)
  *   Arrière-plan général ........ #1a1a1a  → cave.950
  *   Fond des blocs / contact .... #262626  → cave.900
  *   Textes principaux / titres .. #ffffff  → cave.0
@@ -86,17 +86,18 @@ const personnalisation = {
       900: '{cave.900}',
       950: '{cave.950}',
     },
+    // light-dark(valeur mode clair, valeur mode sombre)
     text: {
-      color: '{cave.0}',
-      hoverColor: '{cave.0}',
-      mutedColor: '{cave.100}',
-      hoverMutedColor: '{cave.0}',
+      color: 'light-dark({cave.950}, {cave.0})',
+      hoverColor: 'light-dark({cave.950}, {cave.0})',
+      mutedColor: 'light-dark({cave.600}, {cave.100})',
+      hoverMutedColor: 'light-dark({cave.800}, {cave.0})',
     },
     // Cartes, panneaux, blocs
     content: {
-      background: '{cave.900}',
-      hoverBackground: '{cave.800}',
-      borderColor: '{cave.200}',
+      background: 'light-dark({cave.0}, {cave.900})',
+      hoverBackground: 'light-dark({cave.100}, {cave.800})',
+      borderColor: '{cave.200}', // #e1e1e1 dans les deux modes
     },
   },
 };
