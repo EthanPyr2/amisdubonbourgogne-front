@@ -243,3 +243,11 @@
 </section>
 
 </div>
+
+<!-- Notification après une action (succès ou erreur) -->
+@if (notice(); as n) {
+  <div class="notice" [class.is-error]="n.type === 'error'" [attr.role]="n.type === 'error' ? 'alert' : 'status'">
+    <span>{{ n.text }}</span>
+    <button type="button" class="notice__close" (click)="notice.set(null)" aria-label="Fermer la notification">✕</button>
+  </div>
+}

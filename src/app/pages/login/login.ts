@@ -4,6 +4,7 @@ import { ActivatedRoute, Router, RouterLink } from '@angular/router';
 import { ButtonModule } from 'primeng/button';
 import { InputTextModule } from 'primeng/inputtext';
 import { AuthService } from '../../service/auth.service';
+import { apiErrorMessage } from '../../shared/api-error';
 
 @Component({
   imports: [FormsModule, RouterLink, ButtonModule, InputTextModule],
@@ -46,7 +47,9 @@ export class Login {
         this.submitting.set(false);
         this.password = '';
         this.error.set(
-          err.status === 401 ? 'Identifiant ou mot de passe incorrect.' : 'Connexion impossible pour le moment. Réessayez.',
+          err.status === 401
+            ? 'Identifiant ou mot de passe incorrect.'
+            : apiErrorMessage(err, 'Connexion impossible pour le moment. Réessayez.'), // ex. 429 : trop de tentatives
         );
       },
     });

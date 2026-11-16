@@ -10,6 +10,7 @@ import { TextareaModule } from 'primeng/textarea';
 import { Wine, WineColor, WineRequest } from '../../model/wine.model';
 import { WineAdminService } from '../../service/wineAdmin.service';
 import { AuthService } from '../../service/auth.service';
+import { apiErrorMessage } from '../../shared/api-error';
 import { Router } from '@angular/router';
 import {Checkbox} from 'primeng/checkbox';
 
@@ -122,6 +123,17 @@ export class Admin {
   protected readonly auth = inject(AuthService);
   private readonly router = inject(Router);
 
+  /** Notification affichée en bas de l'écran après une action (succès ou erreur) */
+  protected readonly notice = signal<{ type: 'success' | 'error'; text: string } | null>(null);
+  private noticeTimer?: ReturnType<typeof setTimeout>;
+
+  protected notify(type: 'success' | 'error', text: string): void {
+    clearTimeout(this.noticeTimer);
+    this.notice.set({ type, text });
+    // Un succès disparaît vite ; une erreur reste plus longtemps pour être lue
+    this.noticeTimer = setTimeout(() => this.notice.set(null), type === 'success' ? 4000 : 10000);
+  }
+
   /** « Se déconnecter » : ferme la session côté back puis retourne à la page de connexion */
   protected logout(): void {
     this.auth.logout().subscribe({
@@ -204,7 +216,7 @@ export class Admin {
     this.wineAdminService.setAvailability(wine.id!, available).subscribe({
       next: () => this.wines.update((wines) => wines.map((w) => (w.id === wine.id ? { ...w, available } : w))),
       error: (err) => {
-        console.error('Échec de la mise à jour de la disponibilité', err.status);
+        this.notify('error', apiErrorMessage(err, "La disponibilité n'a pas pu être modifiée."));
         this.loadWines(); // on recharge pour que la case reflète l'état réel
       },
     });
@@ -215,7 +227,7 @@ export class Admin {
     this.wineAdminService.setFeatured(wine.id!, featured).subscribe({
       next: () => this.wines.update((wines) => wines.map((w) => (w.id === wine.id ? { ...w, featured } : w))),
       error: (err) => {
-        console.error('Échec de la mise en vedette', err.status);
+        this.notify('error', apiErrorMessage(err, "La mise en vedette n'a pas pu être modifiée."));
         this.loadWines(); // on recharge pour que la case reflète l'état réel
       },
     });
@@ -231,9 +243,10 @@ export class Admin {
       next: () => {
         this.wines.update((wines) => wines.filter((w) => w.id !== wine.id));
         if (this.editing()?.id === wine.id) this.cancelEdit(); // le vin modifié n'existe plus
+        this.notify('success', `${wine.appellation}${wine.vintage ? ' ' + wine.vintage : ''} supprimé de la carte.`);
       },
       error: (err) => {
-        console.error('Échec de la suppression', err.status);
+        this.notify('error', apiErrorMessage(err, "Le vin n'a pas pu être supprimé."));
         this.loadWines(); // on recharge pour afficher l'état réel
       },
     });
@@ -243,7 +256,7 @@ export class Admin {
   private loadWines(): void {
     this.wineAdminService.listAdmin().subscribe({
       next: (wines) => this.wines.set(wines),
-      error: (err) => console.error('Échec du chargement des vins', err.status),
+      error: (err) => this.notify('error', apiErrorMessage(err, "La liste des vins n'a pas pu être chargée.")),
     });
   }
 
@@ -275,11 +288,13 @@ export class Admin {
       ? this.wineAdminService.update(editing.id!, request)
       : this.wineAdminService.create(request);
     save$.subscribe({
-      next: () => {
+      next: (saved) => {
         this.cancelEdit(); // vide le formulaire et repasse en mode « Ajouter »
         this.loadWines(); // le tableau affiche le vin ajouté ou modifié
+        this.notify('success', `${saved.appellation}${saved.vintage ? ' ' + saved.vintage : ''} ${editing ? 'modifié' : 'ajouté à la carte'}.`);
       },
-      error: (err) => console.error(editing ? 'Échec de la modification' : 'Échec de la création', err.status, err.error),
+      error: (err) =>
+        this.notify('error', apiErrorMessage(err, editing ? "La modification n'a pas pu être enregistrée." : "Le vin n'a pas pu être ajouté.")),
     });
   }
 }

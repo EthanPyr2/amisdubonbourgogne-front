@@ -34,3 +34,41 @@
 :host ::ng-deep tr.is-editing > td {
   background: color-mix(in srgb, var(--p-primary-color) 12%, transparent);
 }
+
+// Notification en bas à droite de l'écran
+.notice {
+  position: fixed;
+  right: 1.5rem;
+  bottom: 1.5rem;
+  z-index: 100;
+  display: flex;
+  align-items: center;
+  gap: 1rem;
+  max-width: min(32rem, calc(100vw - 3rem));
+  padding: 1rem 1.25rem;
+  border-left: 4px solid #2e7d32;
+  border-radius: 0.5rem;
+  background: var(--p-content-background);
+  box-shadow: 0 12px 32px -12px rgb(0 0 0 / 0.5);
+  color: var(--p-text-color);
+  animation: notice-in 0.2s ease-out;
+
+  &.is-error {
+    border-left-color: var(--p-primary-color);
+  }
+
+  &__close {
+    flex-shrink: 0;
+    border: 0;
+    background: none;
+    color: var(--p-text-muted-color);
+    cursor: pointer;
+  }
+}
+
+@keyframes notice-in {
+  from {
+    opacity: 0;
+    transform: translateY(8px);
+  }
+}
