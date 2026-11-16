@@ -1,12 +1,12 @@
 <header class="sticky top-0 z-50 border-b border-(--app-border-subtle) bg-(--app-bg)/85 backdrop-blur">
-  <div class="mx-auto flex max-w-7xl flex-wrap items-center justify-between gap-x-8 gap-y-4 px-6 py-5">
+  <div class="mx-auto flex max-w-7xl items-center justify-between gap-x-8 px-6 py-5">
     <!-- Nom de la cave (pas de logo officiel) -->
     <a routerLink="/" class="font-display text-xl leading-tight text-(--p-text-color) no-underline">
       Les amis du bon Bourgogne
     </a>
 
-    <!-- Menu -->
-    <nav class="flex items-center gap-8 text-xs font-semibold tracking-[0.2em] uppercase">
+    <!-- Menu ordinateur (à partir de 1024 px) -->
+    <nav class="hidden items-center gap-8 text-xs font-semibold tracking-[0.2em] uppercase lg:flex" aria-label="Navigation principale">
       <a routerLink="/" routerLinkActive="nav-active" [routerLinkActiveOptions]="{ exact: true }" class="nav-link">Accueil</a>
       <a routerLink="/carte" routerLinkActive="nav-active" class="nav-link">Notre sélection</a>
       <!-- Le footer (#contact) est sur toutes les pages : on y défile sans changer de page -->
@@ -29,7 +29,26 @@
           </svg>
         }
       </button>
-      <a href="mailto:info@amisdubonbourgogne.eu" class="cta-outline">Nous écrire <span aria-hidden="true">→</span></a>
+      <a href="mailto:info@amisdubonbourgogne.eu" class="cta-outline desktop-only">Nous écrire <span aria-hidden="true">→</span></a>
+
+      <!-- Burger (mobile et tablette) : devient une croix quand le menu est ouvert -->
+      <button type="button" class="icon-btn burger" [class.is-open]="menuOpen()" (click)="toggleMenu()"
+              aria-controls="menu-mobile" [attr.aria-expanded]="menuOpen()"
+              [attr.aria-label]="menuOpen() ? 'Fermer le menu' : 'Ouvrir le menu'">
+        <span></span><span></span><span></span>
+      </button>
     </div>
   </div>
+
+  <!-- Menu mobile déplié sous la barre -->
+  @if (menuOpen()) {
+    <nav id="menu-mobile" class="mobile-menu" aria-label="Navigation principale">
+      <a routerLink="/" routerLinkActive="is-active" [routerLinkActiveOptions]="{ exact: true }" (click)="closeMenu()">Accueil</a>
+      <a routerLink="/carte" routerLinkActive="is-active" (click)="closeMenu()">Notre sélection</a>
+      <a href="#contact" (click)="scrollToContact($event)">Contact</a>
+      <a href="mailto:info@amisdubonbourgogne.eu" class="cta-outline mt-4 justify-center" (click)="closeMenu()">
+        Nous écrire <span aria-hidden="true">→</span>
+      </a>
+    </nav>
+  }
 </header>

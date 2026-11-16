@@ -60,3 +60,77 @@
     background: color-mix(in srgb, var(--p-primary-color) 15%, transparent);
   }
 }
+
+// ---------- Affichage selon la largeur d'écran ----------
+// Fait ici plutôt qu'avec les classes Tailwind (hidden, lg:hidden…) : les styles de ce fichier
+// passent avant les utilitaires Tailwind, ils annuleraient donc un « hidden » posé dans le HTML.
+$desktop: 1024px;
+
+.desktop-only {
+  @media (max-width: ($desktop - 1px)) {
+    display: none;
+  }
+}
+
+.burger,
+.mobile-menu {
+  @media (min-width: $desktop) {
+    display: none;
+  }
+}
+
+// ---------- Burger (3 traits qui se transforment en croix) ----------
+.burger {
+  flex-direction: column;
+  gap: 4px;
+
+  span {
+    display: block;
+    width: 16px;
+    height: 1.5px;
+    background: currentColor;
+    transition: transform 0.2s, opacity 0.2s;
+  }
+
+  &.is-open span:nth-child(1) {
+    transform: translateY(5.5px) rotate(45deg);
+  }
+
+  &.is-open span:nth-child(2) {
+    opacity: 0;
+  }
+
+  &.is-open span:nth-child(3) {
+    transform: translateY(-5.5px) rotate(-45deg);
+  }
+}
+
+// ---------- Menu mobile ----------
+.mobile-menu {
+  display: flex;
+  flex-direction: column;
+  padding: 0.5rem 1.5rem 2rem;
+  border-top: 1px solid var(--app-border-subtle);
+  animation: menu-in 0.2s ease-out;
+
+  > a:not(.cta-outline) {
+    padding: 1rem 0;
+    border-bottom: 1px solid var(--app-border-subtle);
+    font-family: var(--font-display);
+    font-size: 1.75rem;
+    color: var(--p-text-color);
+    text-decoration: none;
+
+    // Page active : texte en bordeaux
+    &.is-active {
+      color: var(--p-primary-color);
+    }
+  }
+}
+
+@keyframes menu-in {
+  from {
+    opacity: 0;
+    transform: translateY(-8px);
+  }
+}
