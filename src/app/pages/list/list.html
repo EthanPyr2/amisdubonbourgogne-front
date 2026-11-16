@@ -1,1 +1,109 @@
-<p>list works!</p>
+  <!-- ============ EN-TÊTE ============ -->
+<section class="relative overflow-hidden border-b border-(--app-border-subtle)">
+  <div class="relative z-10 mx-auto max-w-7xl px-6 pt-20 pb-28">
+    <p class="eyebrow">La sélection de la cave</p>
+    <h1 class="font-display text-5xl leading-[1.05] md:text-7xl">La carte des vins</h1>
+    <p class="mt-6 max-w-xl text-lg leading-relaxed text-(--p-text-muted-color)">
+      De la Bourgogne à la Loire, en passant par le Rhône : trouvez votre prochaine découverte en quelques instants.
+    </p>
+    <span class="mt-8 block h-0.5 w-14 bg-(--p-primary-color)" aria-hidden="true"></span>
+  </div>
+  <span class="watermark" aria-hidden="true">Sélection</span>
+</section>
+
+<!-- Zone claire (comme le Wine Spotlight de la landing), quel que soit le mode -->
+<section class="light-band">
+<div class="mx-auto max-w-7xl px-6 py-20">
+  <!-- ============ TITRE + FILTRES ============ -->
+  <div class="mb-10 flex flex-wrap items-end justify-between gap-6">
+    <div>
+      <p class="eyebrow">À découvrir</p>
+      <h2 class="font-display text-5xl">Explorez nos régions</h2>
+    </div>
+    <p class="max-w-sm text-sm text-(--p-text-muted-color)">
+      Recherchez une cuvée, affinez votre choix et ouvrez sa fiche pour en savoir plus.
+    </p>
+  </div>
+
+  <!-- Panneau de filtres (visuel uniquement pour l'instant) -->
+  <div class="filters">
+    <div class="grid gap-5 md:grid-cols-[1fr_14rem_14rem]">
+      <label class="flex flex-col gap-2">
+        <span class="field-label">Rechercher un vin</span>
+        <span class="relative">
+          <svg class="pointer-events-none absolute top-1/2 left-4 size-5 -translate-y-1/2 text-(--p-text-muted-color)"
+               viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true">
+            <circle cx="11" cy="11" r="7" /><path d="m20 20-3.5-3.5" stroke-linecap="round" />
+          </svg>
+          <input type="search" placeholder="Nom, appellation, producteur ou millésime…" class="search-input" />
+        </span>
+      </label>
+      <label class="flex flex-col gap-2">
+        <span class="field-label">Catégorie</span>
+        <p-select [options]="categoryOptions" placeholder="Toutes" class="h-14 w-full items-center rounded-none border-(--app-border-field)" />
+      </label>
+      <label class="flex flex-col gap-2">
+        <span class="field-label">Trier par</span>
+        <p-select [options]="sortOptions" placeholder="Région et catégorie" class="h-14 w-full items-center rounded-none border-(--app-border-field)" />
+      </label>
+    </div>
+
+    <div class="mt-6 flex flex-wrap gap-3">
+      @for (region of regions; track region; let first = $first) {
+        <button type="button" class="region-pill" [class.is-active]="first">{{ region }}</button>
+      }
+    </div>
+  </div>
+
+  <!-- Résumé -->
+  <div class="mt-8 mb-12 flex flex-wrap justify-between gap-4 text-sm text-(--p-text-muted-color)">
+    <p><strong class="text-(--p-text-color)">{{ totalWines }}</strong> vins trouvés</p>
+    <p>Choisissez un vin pour voir sa fiche</p>
+  </div>
+
+  <!-- ============ LISTE GROUPÉE PAR RÉGION ============ -->
+  @for (group of groups; track group.region) {
+    <section class="mb-16">
+      <!-- Nom de la région, filet, nombre de vins -->
+      <header class="mb-6 flex items-center gap-6">
+        <h3 class="font-display text-4xl whitespace-nowrap">{{ group.region }}</h3>
+        <span class="h-px flex-1 bg-(--app-border-field)" aria-hidden="true"></span>
+        <span class="text-sm whitespace-nowrap text-(--p-text-muted-color)">
+          {{ countWines(group) }} {{ countWines(group) > 1 ? 'vins' : 'vin' }}
+        </span>
+      </header>
+
+      @for (category of group.categories; track category.label) {
+        <h4 class="eyebrow mt-8 mb-3">{{ category.label }}</h4>
+
+        <!-- En-têtes de colonnes (masqués sur mobile) -->
+        <div class="wine-row wine-row--head" aria-hidden="true">
+          <span>Vin</span><span>Producteur</span><span>Millésime</span><span>Formats &amp; prix</span><span></span>
+        </div>
+
+        @for (wine of category.wines; track wine.name) {
+          <article class="wine-row">
+            <div>
+              <h5 class="font-display text-2xl leading-snug">{{ wine.name }}</h5>
+              @if (wine.cuvee) {
+                <p class="mt-1 text-sm text-(--p-text-muted-color)">{{ wine.cuvee }}</p>
+              }
+            </div>
+            <span class="text-(--p-text-muted-color)">{{ wine.producer }}</span>
+            <span>{{ wine.vintage ?? 'À préciser' }}</span>
+            <div class="flex flex-col gap-1">
+              @for (format of wine.formats; track format.volume) {
+                <span class="flex justify-between gap-4 whitespace-nowrap md:justify-start">
+                  <span class="w-16 text-sm text-(--p-text-muted-color)">{{ format.volume }}</span>
+                  <strong>{{ format.price }}</strong>
+                </span>
+              }
+            </div>
+            <button type="button" class="open-btn" [attr.aria-label]="'Voir la fiche de ' + wine.name">+</button>
+          </article>
+        }
+      }
+    </section>
+  }
+</div>
+</section>
