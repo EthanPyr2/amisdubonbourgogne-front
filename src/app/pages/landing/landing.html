@@ -1,0 +1,110 @@
+<!-- ============ HERO ============ -->
+<section class="relative overflow-hidden">
+  <div class="relative z-10 mx-auto grid max-w-7xl items-end gap-12 px-6 pt-20 pb-40 lg:grid-cols-[1.5fr_1fr]">
+    <div>
+      <p class="eyebrow">Caviste indépendant · Soiron</p>
+      <h1 class="font-display text-5xl leading-[1.05] md:text-7xl">
+        Le goût du <span class="text-(--p-primary-color) italic">bon</span>,<br />l'amour du terroir.
+      </h1>
+    </div>
+    <div class="lg:pb-3">
+      <p class="text-lg leading-relaxed text-(--p-text-muted-color)">
+        Une cave de passionnés : des vins de Bourgogne, du Rhône et de la Loire sélectionnés par
+        Gerard Mostert, et des bouteilles qui racontent leur origine.
+      </p>
+      <a routerLink="/carte" class="link-arrow mt-8">Découvrir la cave <span aria-hidden="true">→</span></a>
+    </div>
+  </div>
+  <!-- Grand mot en filigrane derrière le titre -->
+  <span class="hero-watermark" aria-hidden="true">Bourgogne</span>
+</section>
+
+<!-- ============ WINE SPOTLIGHT (section claire) ============ -->
+<section id="selection" class="spotlight">
+  <div class="mx-auto max-w-7xl px-6 py-24">
+    <div class="mb-12 flex flex-wrap items-end justify-between gap-6">
+      <div>
+        <p class="eyebrow">Sélection du moment</p>
+        <h2 class="font-display text-5xl">Vin à l'honneur</h2>
+      </div>
+      <p class="max-w-xs text-sm text-[#525252]">
+        Trois cuvées choisies pour leur justesse, leur caractère et leur émotion.
+      </p>
+    </div>
+
+    @if (loading()) {
+      <p class="text-[#525252]">Chargement de la sélection…</p>
+    } @else {
+      <div class="grid gap-6 md:grid-cols-3">
+        @for (wine of spotlight(); track wine.slug) {
+          <article class="wine-card">
+            <!-- Illustration : bouteille dessinée, capsule de la couleur du vin -->
+            <div class="wine-card__visual">
+              @if (wine.vintage) {
+                <span class="wine-card__badge">{{ wine.vintage }}</span>
+              }
+              <svg class="h-56 drop-shadow-xl" viewBox="0 0 60 200" aria-hidden="true">
+                <path d="M24 0h12v58c0 10 14 18 14 34v100a8 8 0 0 1-8 8H18a8 8 0 0 1-8-8V92c0-16 14-24 14-34z" fill="#1c1c1c" />
+                <rect x="24" y="0" width="12" height="34" rx="2" [attr.fill]="capsuleColor(wine.color)" />
+                <rect x="13" y="112" width="34" height="50" rx="2" fill="#f4efe6" />
+                <rect x="19" y="122" width="22" height="2.5" [attr.fill]="capsuleColor(wine.color)" />
+                <rect x="17" y="130" width="26" height="1.5" fill="#9a9a9a" />
+                <rect x="21" y="135" width="18" height="1.5" fill="#9a9a9a" />
+                <rect x="23" y="150" width="14" height="1.5" fill="#9a9a9a" />
+                <rect x="15" y="96" width="3" height="92" rx="1.5" fill="#fff" opacity=".1" />
+              </svg>
+            </div>
+
+            <div class="flex flex-1 flex-col p-6">
+              <p class="eyebrow mb-2!">{{ wine.region.name }}</p>
+              <h3 class="font-display text-2xl leading-snug">
+                {{ wine.appellation }}
+                @if (wine.cuvee) {
+                  <span class="text-[#525252]">· {{ wine.cuvee }}</span>
+                }
+              </h3>
+              <p class="mt-1 text-sm text-[#525252]">{{ wine.producer }}</p>
+
+              <div class="mt-auto flex items-center justify-between gap-4 border-t border-[#e1e1e1] pt-5">
+                <span class="text-lg font-semibold">
+                  @if (wine.formats.length > 1) { <span class="text-sm font-normal text-[#525252]">dès</span> }
+                  {{ formatPrice(minPrice(wine)) }}
+                </span>
+                <a routerLink="/carte" class="btn-primary">Découvrir <span aria-hidden="true">→</span></a>
+              </div>
+            </div>
+          </article>
+        } @empty {
+          <p class="text-[#525252] md:col-span-3">La sélection du moment arrive bientôt.</p>
+        }
+      </div>
+    }
+  </div>
+</section>
+
+<!-- ============ DISCOVER ============ -->
+<section class="mx-auto max-w-7xl px-6 py-24">
+  <div class="mb-12 flex flex-wrap items-end justify-between gap-6">
+    <div>
+      <p class="eyebrow">Parcourir la cave</p>
+      <h2 class="font-display text-5xl">Sélection</h2>
+    </div>
+    <p class="max-w-xs text-sm text-(--p-text-muted-color)">Trois régions, une même passion. Trouvez votre prochaine bouteille.</p>
+  </div>
+
+  <!-- Grille 2 × 2 : les fines lignes sont le fond qui apparaît entre les tuiles (gap-px) -->
+  <div class="grid gap-px border border-(--app-border-subtle) bg-(--app-border-subtle) md:grid-cols-2">
+    @for (terroir of terroirs; track terroir.title; let i = $index) {
+      <a class="terroir" routerLink="/carte" [queryParams]="terroir.region ? { region: terroir.region } : {}">
+        <span class="text-xs tracking-[0.2em] text-(--p-text-muted-color) uppercase">0{{ i + 1 }}</span>
+        <div class="mt-16 flex items-end justify-between gap-6">
+          <div>
+            <h3 class="font-display text-3xl">{{ terroir.title }}</h3>
+            <p class="mt-2 text-sm text-(--p-text-muted-color)">{{ terroir.tagline }}</p>
+          </div>
+          <span class="terroir__arrow" aria-hidden="true">→</span>
+        </div>
+      </a>
+    }
+  </div>
+</section>

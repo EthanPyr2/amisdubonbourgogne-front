@@ -9,11 +9,18 @@
   /* Bordures légères (cartes) et bordures des champs de formulaire */
   --app-border-subtle: light-dark(rgb(0 0 0 / 0.1), rgb(255 255 255 / 0.15));
   --app-border-field: light-dark(rgb(0 0 0 / 0.2), rgb(255 255 255 / 0.3));
+
+  /* Fond de page (#f5f5f5 / #1a1a1a) */
+  --app-bg: light-dark(var(--p-surface-50), var(--p-surface-950));
+}
+
+html {
+  scroll-behavior: smooth;
 }
 
 body {
   margin: 0;
-  background: light-dark(var(--p-surface-50), var(--p-surface-950)); /* #f5f5f5 / #1a1a1a */
+  background: var(--app-bg);
   color: var(--p-text-color); /* #1a1a1a / #ffffff */
   transition: background-color 0.2s, color 0.2s;
 }
