@@ -51,6 +51,12 @@
             "styles": [
               "src/tailwind.css",
               "src/styles.scss"
+            ],
+            "allowedCommonJsDependencies": [
+              "core-js",
+              "html2canvas",
+              "raf",
+              "rgbcolor"
             ]
           },
           "configurations": {

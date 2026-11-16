@@ -33,6 +33,34 @@
   user-select: none;
 }
 
+// Bouton « Télécharger la carte (PDF) » (même style que « Nous écrire »)
+.pdf-btn {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.75rem;
+  padding: 0.875rem 1.25rem;
+  border: 1px solid var(--app-border-field);
+  background: transparent;
+  font: inherit;
+  font-size: 0.75rem;
+  font-weight: 600;
+  letter-spacing: 0.15em;
+  text-transform: uppercase;
+  color: var(--p-text-color);
+  cursor: pointer;
+  transition: border-color 0.15s, background-color 0.15s;
+
+  &:hover:not(:disabled) {
+    border-color: var(--p-primary-color);
+    background: color-mix(in srgb, var(--p-primary-color) 15%, transparent);
+  }
+
+  &:disabled {
+    opacity: 0.5;
+    cursor: default;
+  }
+}
+
 // ---------- Zone claire sous l'en-tête ----------
 // color-scheme: light fait passer toutes les couleurs du thème (light-dark()) en version claire
 // à l'intérieur de la zone, même quand le site est en mode sombre.

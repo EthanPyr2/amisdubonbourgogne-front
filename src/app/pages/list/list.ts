@@ -7,6 +7,7 @@ import { SelectModule } from 'primeng/select';
 import { Wine, WineColor } from '../../model/wine.model';
 import { WinePublicService } from '../../service/winePublic.service';
 import { COLOR_LABELS, formatPrice, formatVolume } from '../../shared/format';
+import { groupWines, RegionGroup } from './group-wines';
 
 type SortKey = 'carte' | 'prix-asc' | 'prix-desc' | 'nom';
 
@@ -31,12 +32,6 @@ function minPrice(wine: Wine): number {
   return Math.min(...wine.formats.map((f) => f.price));
 }
 
-/** Une région de la carte, avec ses vins rangés par couleur */
-interface RegionGroup {
-  region: string;
-  count: number;
-  categories: { label: string; wines: Wine[] }[];
-}
 
 @Component({
   imports: [FormsModule, SelectModule],
@@ -111,33 +106,10 @@ export class List {
    * Regroupe les vins filtrés par région puis par couleur.
    * Les groupes gardent l'ordre de la carte ; le tri choisi s'applique à l'intérieur de chaque groupe.
    */
-  protected readonly groups = computed<RegionGroup[]>(() => {
-    const regionOrder = [...new Set(this.wines().map((w) => w.region.name))];
-    const colorOrder = Object.keys(COLOR_LABELS);
-    const groups: RegionGroup[] = [];
-    for (const wine of this.filteredWines()) {
-      let group = groups.find((g) => g.region === wine.region.name);
-      if (!group) {
-        group = { region: wine.region.name, count: 0, categories: [] };
-        groups.push(group);
-      }
-      const label = COLOR_LABELS[wine.color];
-      let category = group.categories.find((c) => c.label === label);
-      if (!category) {
-        category = { label, wines: [] };
-        group.categories.push(category);
-      }
-      category.wines.push(wine);
-      group.count++;
-    }
-    groups.sort((a, b) => regionOrder.indexOf(a.region) - regionOrder.indexOf(b.region));
-    for (const group of groups) {
-      group.categories.sort(
-        (a, b) => colorOrder.indexOf(colorKey(a.label)) - colorOrder.indexOf(colorKey(b.label)),
-      );
-    }
-    return groups;
-  });
+  protected readonly groups = computed<RegionGroup[]>(() => groupWines(this.filteredWines(), this.regionOrder()));
+
+  /** Ordre des régions de la carte (celui envoyé par le back) */
+  private readonly regionOrder = computed(() => [...new Set(this.wines().map((w) => w.region.name))]);
 
   protected readonly totalWines = computed(() => this.filteredWines().length);
   protected readonly hasActiveFilters = computed(
@@ -193,6 +165,26 @@ export class List {
     });
   }
 
+  /** PDF en cours de préparation (le bouton affiche « Préparation… ») */
+  protected readonly generatingPdf = signal(false);
+
+  /**
+   * Télécharge toute la carte (tous les vins disponibles, sans tenir compte des filtres) en PDF.
+   * jsPDF n'est chargé qu'au premier clic : il n'alourdit pas l'ouverture de la page.
+   */
+  protected async downloadPdf(): Promise<void> {
+    if (this.generatingPdf() || !this.wines().length) return;
+    this.generatingPdf.set(true);
+    try {
+      const { downloadCartePdf } = await import('./carte-pdf');
+      downloadCartePdf(groupWines(this.wines(), this.regionOrder()));
+    } catch (err) {
+      console.error('Échec de la génération du PDF', err);
+    } finally {
+      this.generatingPdf.set(false);
+    }
+  }
+
   protected resetFilters(): void {
     this.search.set('');
     this.color.set(null);
@@ -221,9 +213,4 @@ export class List {
       return next;
     });
   }
-}
-
-/** Retrouve la clé WineColor à partir de son libellé (pour ordonner les catégories) */
-function colorKey(label: string): string {
-  return Object.entries(COLOR_LABELS).find(([, l]) => l === label)?.[0] ?? '';
 }

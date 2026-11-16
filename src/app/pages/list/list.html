@@ -7,6 +7,16 @@
       De la Bourgogne à la Loire, en passant par le Rhône : trouvez votre prochaine découverte en quelques instants.
     </p>
     <span class="mt-8 block h-0.5 w-14 bg-(--p-primary-color)" aria-hidden="true"></span>
+
+    <!-- Télécharger toute la carte en PDF -->
+    <button type="button" class="pdf-btn mt-10" (click)="downloadPdf()"
+            [disabled]="loading() || !wines().length || generatingPdf()">
+      <svg class="size-4" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"
+           stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+        <path d="M12 3v12m0 0-4-4m4 4 4-4M5 21h14" />
+      </svg>
+      {{ generatingPdf() ? 'Préparation du PDF…' : 'Télécharger la carte (PDF)' }}
+    </button>
   </div>
   <span class="watermark" aria-hidden="true">Sélection</span>
 </section>
