@@ -8,8 +8,8 @@ import { WinePublicService } from '../../service/winePublic.service';
 interface Terroir {
   title: string;
   tagline: string;
-  /** Paramètre envoyé à la carte (/carte?region=…), null = toute la carte */
-  region: string | null;
+  /** Filtre appliqué en arrivant sur la carte : /carte?region=… ou /carte?selection=vedette */
+  queryParams: Record<string, string>;
 }
 
 @Component({
@@ -26,10 +26,10 @@ export class Landing {
   protected readonly loading = signal(true);
 
   protected readonly terroirs: Terroir[] = [
-    { title: 'Bourgogne', tagline: 'La finesse et l’élégance du pinot noir et du chardonnay.', region: 'bourgogne' },
-    { title: 'Vallée du Rhône', tagline: 'La générosité et le caractère des grandes syrah et grenache.', region: 'rhone' },
-    { title: 'Loire', tagline: 'La fraîcheur et la diversité, du sauvignon au cabernet franc.', region: 'loire' },
-    { title: 'Nos découvertes', tagline: 'Des pépites d’ailleurs, choisies avec la même exigence.', region: null },
+    { title: 'Bourgogne', tagline: 'La finesse et l’élégance du pinot noir et du chardonnay.', queryParams: { region: 'bourgogne' } },
+    { title: 'Vallée du Rhône', tagline: 'La générosité et le caractère des grandes syrah et grenache.', queryParams: { region: 'rhone' } },
+    { title: 'Loire', tagline: 'La fraîcheur et la diversité, du sauvignon au cabernet franc.', queryParams: { region: 'loire' } },
+    { title: 'Nos découvertes', tagline: 'Les coups de cœur du moment, choisis par Gerard Mostert.', queryParams: { selection: 'vedette' } },
   ];
 
   constructor() {

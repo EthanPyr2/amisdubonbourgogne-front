@@ -2,6 +2,7 @@ import { Component, computed, inject, signal } from '@angular/core';
 import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
 import { FormsModule } from '@angular/forms';
 import { ActivatedRoute, Router } from '@angular/router';
+import { forkJoin } from 'rxjs';
 import { SelectModule } from 'primeng/select';
 import { Wine, WineColor } from '../../model/wine.model';
 import { WinePublicService } from '../../service/winePublic.service';
@@ -72,6 +73,10 @@ export class List {
   protected readonly sort = signal<SortKey>('carte');
   /** Région choisie : lue dans l'URL (?region=…), null = toutes */
   protected readonly region = signal<string | null>(null);
+  /** « Nos découvertes » : seulement les vins en vedette, lu dans l'URL (?selection=vedette) */
+  protected readonly featuredOnly = signal(false);
+  /** Slugs des vins en vedette (GET /api/wines/featured) : la liste publique ne porte pas cette info */
+  private readonly featuredSlugs = signal<ReadonlySet<string>>(new Set());
 
   /** Vins disponibles, dans l'ordre de la carte (trié par le back : région, couleur, appellation) */
   protected readonly wines = signal<Wine[]>([]);
@@ -86,6 +91,7 @@ export class List {
       (wine) =>
         (!this.color() || wine.color === this.color()) &&
         this.matchesRegion(wine, region) &&
+        (!this.featuredOnly() || this.featuredSlugs().has(wine.slug)) &&
         (!term ||
           normalize([wine.appellation, wine.cuvee, wine.producer, wine.region.name, wine.grapes, wine.vintage].join(' ')).includes(term)),
     );
@@ -135,7 +141,8 @@ export class List {
 
   protected readonly totalWines = computed(() => this.filteredWines().length);
   protected readonly hasActiveFilters = computed(
-    () => !!this.search().trim() || !!this.color() || !!this.region() || this.sort() !== 'carte',
+    () =>
+      !!this.search().trim() || !!this.color() || !!this.region() || this.featuredOnly() || this.sort() !== 'carte',
   );
 
   // Fonctions d'affichage utilisées dans le template
@@ -147,11 +154,16 @@ export class List {
     // La région vient de l'URL : boutons de région, tuiles de la landing, lien partagé
     this.route.queryParamMap
       .pipe(takeUntilDestroyed())
-      .subscribe((params) => this.region.set(params.get('region')));
+      .subscribe((params) => {
+        this.region.set(params.get('region'));
+        this.featuredOnly.set(params.get('selection') === 'vedette');
+      });
 
-    this.winePublicService.list().subscribe({
-      next: (wines) => {
-        this.wines.set(wines);
+    // Les deux listes en parallèle : tous les vins disponibles + ceux en vedette
+    forkJoin({ all: this.winePublicService.list(), featured: this.winePublicService.listFeatured() }).subscribe({
+      next: ({ all, featured }) => {
+        this.wines.set(all);
+        this.featuredSlugs.set(new Set(featured.map((w) => w.slug)));
         this.loading.set(false);
       },
       error: () => {
@@ -171,11 +183,21 @@ export class List {
     });
   }
 
+  /** Bouton « Nos découvertes » : active / désactive le filtre via l'URL (?selection=vedette) */
+  protected toggleFeatured(): void {
+    this.router.navigate([], {
+      relativeTo: this.route,
+      queryParams: { selection: this.featuredOnly() ? null : 'vedette' },
+      queryParamsHandling: 'merge',
+      replaceUrl: true,
+    });
+  }
+
   protected resetFilters(): void {
     this.search.set('');
     this.color.set(null);
     this.sort.set('carte');
-    this.selectRegion(null);
+    this.router.navigate([], { relativeTo: this.route, queryParams: {}, replaceUrl: true });
   }
 
   private matchesRegion(wine: Wine, key: string | null): boolean {

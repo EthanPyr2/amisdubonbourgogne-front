@@ -95,7 +95,7 @@
   <!-- Grille 2 × 2 : les fines lignes sont le fond qui apparaît entre les tuiles (gap-px) -->
   <div class="grid gap-px border border-(--app-border-subtle) bg-(--app-border-subtle) md:grid-cols-2">
     @for (terroir of terroirs; track terroir.title; let i = $index) {
-      <a class="terroir" routerLink="/carte" [queryParams]="terroir.region ? { region: terroir.region } : {}">
+      <a class="terroir" routerLink="/carte" [queryParams]="terroir.queryParams">
         <span class="text-xs tracking-[0.2em] text-(--p-text-muted-color) uppercase">0{{ i + 1 }}</span>
         <div class="mt-16 flex items-end justify-between gap-6">
           <div>

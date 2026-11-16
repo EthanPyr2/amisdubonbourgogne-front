@@ -60,6 +60,12 @@
           {{ button.label }}
         </button>
       }
+      <!-- Se combine avec la région : ex. les coups de cœur de Bourgogne -->
+      <span class="mx-1 hidden w-px self-stretch bg-(--app-border-field) sm:block" aria-hidden="true"></span>
+      <button type="button" class="region-pill" [class.is-active]="featuredOnly()"
+              [attr.aria-pressed]="featuredOnly()" (click)="toggleFeatured()">
+        ★ Nos découvertes
+      </button>
     </div>
   </div>
 
