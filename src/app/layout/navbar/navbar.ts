@@ -10,4 +10,10 @@ import { ThemeService } from '../../service/theme.service';
 })
 export class Navbar {
   protected readonly theme = inject(ThemeService);
+
+  /** Lien « Contact » : défile jusqu'au footer de la page actuelle */
+  protected scrollToContact(event: Event): void {
+    event.preventDefault(); // sinon le navigateur changerait l'URL et Angular naviguerait
+    document.getElementById('contact')?.scrollIntoView({ behavior: 'smooth', block: 'start' });
+  }
 }

@@ -9,7 +9,8 @@
     <nav class="flex items-center gap-8 text-xs font-semibold tracking-[0.2em] uppercase">
       <a routerLink="/" routerLinkActive="nav-active" [routerLinkActiveOptions]="{ exact: true }" class="nav-link">Accueil</a>
       <a routerLink="/carte" routerLinkActive="nav-active" class="nav-link">Notre sélection</a>
-      <a routerLink="/" fragment="contact" class="nav-link">Contact</a>
+      <!-- Le footer (#contact) est sur toutes les pages : on y défile sans changer de page -->
+      <a href="#contact" (click)="scrollToContact($event)" class="nav-link">Contact</a>
     </nav>
 
     <!-- Actions -->
