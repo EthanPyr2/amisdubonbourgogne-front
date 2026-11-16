@@ -25,7 +25,7 @@
     </p>
   </div>
 
-  <!-- Panneau de filtres (visuel uniquement pour l'instant) -->
+  <!-- Panneau de filtres -->
   <div class="filters">
     <div class="grid gap-5 md:grid-cols-[1fr_14rem_14rem]">
       <label class="flex flex-col gap-2">
@@ -35,22 +35,30 @@
                viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true">
             <circle cx="11" cy="11" r="7" /><path d="m20 20-3.5-3.5" stroke-linecap="round" />
           </svg>
-          <input type="search" placeholder="Nom, appellation, producteur ou millésime…" class="search-input" />
+          <input type="search" placeholder="Nom, appellation, producteur ou millésime…" class="search-input"
+                 [ngModel]="search()" (ngModelChange)="search.set($event)" />
         </span>
       </label>
       <label class="flex flex-col gap-2">
         <span class="field-label">Catégorie</span>
-        <p-select [options]="categoryOptions" placeholder="Toutes" class="h-14 w-full items-center rounded-none border-(--app-border-field)" />
+        <p-select [options]="categoryOptions" optionLabel="label" optionValue="value"
+                  [ngModel]="color()" (ngModelChange)="color.set($event)"
+                  class="h-14 w-full items-center rounded-none border-(--app-border-field)" />
       </label>
       <label class="flex flex-col gap-2">
         <span class="field-label">Trier par</span>
-        <p-select [options]="sortOptions" placeholder="Région et catégorie" class="h-14 w-full items-center rounded-none border-(--app-border-field)" />
+        <p-select [options]="sortOptions" optionLabel="label" optionValue="value"
+                  [ngModel]="sort()" (ngModelChange)="sort.set($event)"
+                  class="h-14 w-full items-center rounded-none border-(--app-border-field)" />
       </label>
     </div>
 
     <div class="mt-6 flex flex-wrap gap-3">
-      @for (region of regions; track region; let first = $first) {
-        <button type="button" class="region-pill" [class.is-active]="first">{{ region }}</button>
+      @for (button of regionButtons; track button.label) {
+        <button type="button" class="region-pill" [class.is-active]="region() === button.key"
+                [attr.aria-pressed]="region() === button.key" (click)="selectRegion(button.key)">
+          {{ button.label }}
+        </button>
       }
     </div>
   </div>
@@ -139,7 +147,14 @@
     </section>
   } @empty {
     @if (!loading() && !error()) {
-      <p class="py-12 text-center text-(--p-text-muted-color)">La carte est en cours de préparation. Revenez bientôt !</p>
+      @if (wines().length) {
+        <div class="py-12 text-center">
+          <p class="text-(--p-text-muted-color)">Aucun vin ne correspond à votre recherche.</p>
+          <button type="button" class="region-pill mt-5" (click)="resetFilters()">Réinitialiser les filtres</button>
+        </div>
+      } @else {
+        <p class="py-12 text-center text-(--p-text-muted-color)">La carte est en cours de préparation. Revenez bientôt !</p>
+      }
     }
   }
 </div>
