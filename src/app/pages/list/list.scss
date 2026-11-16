@@ -154,6 +154,59 @@
   }
 }
 
+// Ligne dépliée : contour bordeaux, pas de décalage au survol
+.wine-row.is-open {
+  border-color: var(--p-primary-color);
+
+  &:hover {
+    transform: none;
+  }
+}
+
+// Fiche dépliée : occupe toute la largeur de la ligne
+.wine-detail {
+  grid-column: 1 / -1;
+  display: grid;
+  grid-template-columns: minmax(0, 1.6fr) minmax(0, 1fr);
+  gap: 2.5rem;
+  margin-top: 0.5rem;
+  padding-top: 1.5rem;
+  border-top: 1px solid var(--app-border-subtle);
+  animation: unfold 0.2s ease-out;
+
+  @media (max-width: 767px) {
+    grid-template-columns: 1fr;
+    gap: 1.5rem;
+  }
+}
+
+.detail-label {
+  margin-bottom: 0.5rem;
+  font-size: 0.7rem;
+  font-weight: 600;
+  letter-spacing: 0.2em;
+  text-transform: uppercase;
+  color: var(--p-primary-color);
+}
+
+.detail-facts {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 1.25rem 1.5rem;
+  margin: 0;
+
+  dd {
+    margin: 0;
+  }
+}
+
+@keyframes unfold {
+  from {
+    opacity: 0;
+    transform: translateY(-6px);
+  }
+}
+
 .open-btn {
   display: inline-flex;
   align-items: center;

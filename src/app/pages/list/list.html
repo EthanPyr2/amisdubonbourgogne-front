@@ -82,7 +82,7 @@
         </div>
 
         @for (wine of category.wines; track wine.name) {
-          <article class="wine-row">
+          <article class="wine-row" [class.is-open]="isOpen(wine)">
             <div>
               <h5 class="font-display text-2xl leading-snug">{{ wine.name }}</h5>
               @if (wine.cuvee) {
@@ -99,7 +99,34 @@
                 </span>
               }
             </div>
-            <button type="button" class="open-btn" [attr.aria-label]="'Voir la fiche de ' + wine.name">+</button>
+            <button type="button" class="open-btn" (click)="toggle(wine)"
+                    [attr.aria-expanded]="isOpen(wine)" [attr.aria-controls]="'fiche-' + $index"
+                    [attr.aria-label]="(isOpen(wine) ? 'Fermer la fiche de ' : 'Voir la fiche de ') + wine.name">
+              {{ isOpen(wine) ? '−' : '+' }}
+            </button>
+
+            <!-- Fiche dépliée, sur toute la largeur de la ligne -->
+            @if (isOpen(wine)) {
+              <div class="wine-detail" [id]="'fiche-' + $index">
+                <div>
+                  <p class="detail-label">Notes de dégustation</p>
+                  <p class="leading-relaxed">{{ wine.description ?? 'Description à venir.' }}</p>
+                </div>
+                <dl class="detail-facts">
+                  <div><dt class="detail-label">Couleur</dt><dd>{{ wine.color }}</dd></div>
+                  <div><dt class="detail-label">Cépages</dt><dd>{{ wine.grapes ?? '—' }}</dd></div>
+                  <div><dt class="detail-label">Millésime</dt><dd>{{ wine.vintage ?? 'À préciser' }}</dd></div>
+                  <div>
+                    <dt class="detail-label">Formats</dt>
+                    <dd>
+                      @for (format of wine.formats; track format.volume) {
+                        <span class="block">{{ format.volume }} · <strong>{{ format.price }}</strong></span>
+                      }
+                    </dd>
+                  </div>
+                </dl>
+              </div>
+            }
           </article>
         }
       }
