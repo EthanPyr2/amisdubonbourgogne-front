@@ -1,6 +1,6 @@
 import { Routes } from '@angular/router';
-import {Admin} from './pages/admin/admin';
 
 export const routes: Routes = [
-  {path: '', component: Admin, title: 'Admin'},
+  // loadComponent : le code de la page n'est téléchargé que quand on l'ouvre
+  { path: '', loadComponent: () => import('./pages/admin/admin').then((m) => m.Admin), title: 'Admin' },
 ];

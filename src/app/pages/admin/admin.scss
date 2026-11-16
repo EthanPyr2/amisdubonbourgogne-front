@@ -1,0 +1,31 @@
+/* Pastille « case + texte » des colonnes Statut (Disponible, En vedette) */
+.toggle-pill {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.5rem;
+  padding: 0.375rem 0.875rem 0.375rem 0.5rem;
+  border: 1px solid var(--app-border-field);
+  border-radius: 9999px;
+  font-size: 0.875rem;
+  white-space: nowrap;
+  color: var(--p-text-muted-color);
+  cursor: pointer;
+  user-select: none;
+  transition: border-color 0.15s, background-color 0.15s, color 0.15s;
+
+  &:hover {
+    border-color: var(--p-primary-color);
+  }
+
+  // Case cochée : pastille teintée bordeaux
+  &.is-on {
+    border-color: var(--p-primary-color);
+    background: color-mix(in srgb, var(--p-primary-color) 15%, transparent);
+    color: var(--p-text-color);
+  }
+
+  // Case un peu arrondie (Nora la fait carrée)
+  ::ng-deep .p-checkbox-box {
+    border-radius: 0.375rem;
+  }
+}

@@ -1,13 +1,31 @@
-import { Component, inject } from '@angular/core';
+import { Component, computed, inject, signal } from '@angular/core';
 import { FormsModule, NgForm } from '@angular/forms';
 import { ButtonModule } from 'primeng/button';
 import { InputNumberModule } from 'primeng/inputnumber';
 import { InputTextModule } from 'primeng/inputtext';
 import { LabelModule } from 'primeng/label';
 import { SelectModule } from 'primeng/select';
+import { TableModule } from 'primeng/table';
 import { TextareaModule } from 'primeng/textarea';
-import { WineColor, WineRequest } from '../../model/wine.model';
+import { Wine, WineColor, WineRequest } from '../../model/wine.model';
 import { WineAdminService } from '../../service/wineAdmin.service';
+import {Checkbox} from 'primeng/checkbox';
+
+/** Filtre de statut du tableau (null = tous les vins) */
+type StatusFilter = 'available' | 'unavailable' | 'featured';
+
+function matchesStatus(wine: Wine, status: StatusFilter | null): boolean {
+  switch (status) {
+    case 'available':
+      return !!wine.available;
+    case 'unavailable':
+      return !wine.available;
+    case 'featured':
+      return !!wine.featured;
+    default:
+      return true;
+  }
+}
 
 /** Une ligne « format » du formulaire, vide tant que l'utilisateur ne l'a pas remplie */
 interface FormatForm {
@@ -51,7 +69,9 @@ function emptyWine(): WineForm {
     InputTextModule,
     LabelModule,
     SelectModule,
+    TableModule,
     TextareaModule,
+    Checkbox,
   ],
   selector: 'app-admin',
   styleUrl: './admin.scss',
@@ -83,6 +103,100 @@ export class Admin {
 
   private readonly wineAdminService = inject(WineAdminService);
 
+  /** Tous les vins chargés depuis le back */
+  protected readonly wines = signal<Wine[]>([]);
+
+  // --- Filtres du tableau « Vins à la carte » ---
+  protected readonly search = signal('');
+  protected readonly regionFilter = signal<string | null>(null);
+  protected readonly statusFilter = signal<StatusFilter | null>(null);
+
+  /** Régions présentes dans la carte, pour la liste « Toutes régions » */
+  protected readonly regionOptions = computed(() => [
+    { label: 'Toutes régions', value: null },
+    ...[...new Set(this.wines().map((w) => w.region.name))].sort().map((name) => ({ label: name, value: name })),
+  ]);
+
+  /** Choix de la liste « Tous statuts » */
+  protected readonly statusOptions: { label: string; value: StatusFilter | null }[] = [
+    { label: 'Tous statuts', value: null },
+    { label: 'Disponibles', value: 'available' },
+    { label: 'Indisponibles', value: 'unavailable' },
+    { label: 'En vedette', value: 'featured' },
+  ];
+
+  /** Vins affichés : la liste complète, filtrée par la recherche, la région et le millésime */
+  protected readonly filteredWines = computed(() => {
+    const term = this.search().trim().toLowerCase();
+    return this.wines().filter(
+      (w) =>
+        (!this.regionFilter() || w.region.name === this.regionFilter()) &&
+        matchesStatus(w, this.statusFilter()) &&
+        (!term ||
+          [w.appellation, w.producer, w.cuvee, w.region.name, w.vintage]
+            .some((field) => String(field ?? '').toLowerCase().includes(term))),
+    );
+  });
+
+  constructor() {
+    this.loadWines();
+  }
+
+  /** 75 → « 75 cl », 37.5 → « 37,5 cl » */
+  protected formatVolume(volumeCl: number): string {
+    return `${volumeCl.toLocaleString('fr-BE', { maximumFractionDigits: 1 })} cl`;
+  }
+
+  /** 32 → « 32,00 € » */
+  protected formatPrice(price: number): string {
+    return price.toLocaleString('fr-BE', { style: 'currency', currency: 'EUR' });
+  }
+
+  /** Coche / décoche « Disponible » : enregistre tout de suite dans le back */
+  protected setAvailability(wine: Wine, available: boolean): void {
+    this.wineAdminService.setAvailability(wine.id!, available).subscribe({
+      next: () => this.wines.update((wines) => wines.map((w) => (w.id === wine.id ? { ...w, available } : w))),
+      error: (err) => {
+        console.error('Échec de la mise à jour de la disponibilité', err.status);
+        this.loadWines(); // on recharge pour que la case reflète l'état réel
+      },
+    });
+  }
+
+  /** Coche / décoche « En vedette » : enregistre tout de suite dans le back */
+  protected setFeatured(wine: Wine, featured: boolean): void {
+    this.wineAdminService.setFeatured(wine.id!, featured).subscribe({
+      next: () => this.wines.update((wines) => wines.map((w) => (w.id === wine.id ? { ...w, featured } : w))),
+      error: (err) => {
+        console.error('Échec de la mise en vedette', err.status);
+        this.loadWines(); // on recharge pour que la case reflète l'état réel
+      },
+    });
+  }
+
+  /** Bouton « Supprimer » : demande confirmation, puis supprime dans le back */
+  protected deleteWine(wine: Wine): void {
+    const name = [wine.appellation, wine.cuvee, wine.vintage].filter(Boolean).join(' ');
+    if (!confirm(`Supprimer « ${name} » (${wine.producer}) de la carte ?\nCette action est définitive.`)) {
+      return;
+    }
+    this.wineAdminService.delete(wine.id!).subscribe({
+      next: () => this.wines.update((wines) => wines.filter((w) => w.id !== wine.id)),
+      error: (err) => {
+        console.error('Échec de la suppression', err.status);
+        this.loadWines(); // on recharge pour afficher l'état réel
+      },
+    });
+  }
+
+  /** Charge la liste des vins depuis le back (GET /api/admin/wines) */
+  private loadWines(): void {
+    this.wineAdminService.listAdmin().subscribe({
+      next: (wines) => this.wines.set(wines),
+      error: (err) => console.error('Échec du chargement des vins', err.status),
+    });
+  }
+
   protected onSubmit(form: NgForm): void {
     // 1. On ne va pas plus loin si un champ obligatoire est vide
     if (form.invalid) {
@@ -109,6 +223,7 @@ export class Admin {
       next: () => {
         form.resetForm();
         this.wine = emptyWine();
+        this.loadWines(); // le nouveau vin apparaît dans le tableau
       },
       error: (err) => console.error('Échec de la création', err.status, err.error),
     });

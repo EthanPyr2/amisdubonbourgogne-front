@@ -1,5 +1,7 @@
 
-<section class="max-w-xl rounded-2xl border border-(--app-border-subtle) bg-(--p-content-background) p-10">
+<div class="grid items-start gap-8 xl:grid-cols-[minmax(0,5fr)_minmax(0,8fr)]">
+
+<section class="rounded-2xl border border-(--app-border-subtle) bg-(--p-content-background) p-10">
 
   <header class="mb-10 flex items-start justify-between gap-6">
     <div>
@@ -105,3 +107,110 @@
     </button>
   </form>
 </section>
+<section class="rounded-2xl border border-(--app-border-subtle) bg-(--p-content-background) p-10">
+  <!-- En-tête : titre + nombre de vins -->
+  <header class="mb-8 flex items-start justify-between gap-6">
+    <div>
+      <h2 class="font-display text-4xl text-(--p-text-color)">Vins à la carte</h2>
+      <p class="mt-3 text-(--p-text-muted-color)">Retrouvez et gérez vos références en un coup d'œil.</p>
+    </div>
+    <span class="shrink-0 rounded-full border border-(--p-primary-color) bg-(--p-primary-color)/15 px-4 py-1.5 text-sm">
+      {{ wines().length }} {{ wines().length > 1 ? 'vins' : 'vin' }}
+    </span>
+  </header>
+
+  <!-- Filtres -->
+  <div class="mb-6 flex flex-wrap gap-4">
+    <div class="relative min-w-60 flex-1">
+      <svg class="pointer-events-none absolute top-1/2 left-4 size-5 -translate-y-1/2 text-(--p-text-muted-color)"
+           viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true">
+        <circle cx="11" cy="11" r="7" /><path d="m20 20-3.5-3.5" stroke-linecap="round" />
+      </svg>
+      <input pInputText type="search" placeholder="Rechercher un vin…" aria-label="Rechercher un vin"
+             [ngModel]="search()" (ngModelChange)="search.set($event)"
+             class="h-14 w-full rounded-lg border-(--app-border-field) pl-12" />
+    </div>
+    <p-select [options]="regionOptions()" optionLabel="label" optionValue="value" ariaLabel="Filtrer par région"
+              [ngModel]="regionFilter()" (ngModelChange)="regionFilter.set($event)"
+              class="h-14 w-52 items-center rounded-lg border-(--app-border-field)" />
+    <p-select [options]="statusOptions" optionLabel="label" optionValue="value" ariaLabel="Filtrer par statut"
+              [ngModel]="statusFilter()" (ngModelChange)="statusFilter.set($event)"
+              class="h-14 w-48 items-center rounded-lg border-(--app-border-field)" />
+  </div>
+
+  <!-- Tableau encadré -->
+  <div class="overflow-hidden rounded-xl border border-(--app-border-field) [&_tbody_tr:last-child_td]:border-b-0">
+    <p-table [value]="filteredWines()">
+      <ng-template #header>
+        <tr>
+          <th class="bg-(--p-content-hover-background) px-5 py-4 text-xs font-semibold uppercase tracking-wider text-(--p-text-muted-color)">Vin</th>
+          <th class="bg-(--p-content-hover-background) px-5 py-4 text-xs font-semibold uppercase tracking-wider text-(--p-text-muted-color)">Région</th>
+          <th class="bg-(--p-content-hover-background) px-5 py-4 text-xs font-semibold uppercase tracking-wider text-(--p-text-muted-color)">Millésime</th>
+          <th class="bg-(--p-content-hover-background) px-5 py-4 text-xs font-semibold uppercase tracking-wider text-(--p-text-muted-color)">Volume</th>
+          <th class="bg-(--p-content-hover-background) px-5 py-4 text-xs font-semibold uppercase tracking-wider text-(--p-text-muted-color)">Prix</th>
+          <th class="bg-(--p-content-hover-background) px-5 py-4 text-xs font-semibold uppercase tracking-wider text-(--p-text-muted-color)">Statut</th>
+          <th class="bg-(--p-content-hover-background) px-5 py-4 text-xs font-semibold uppercase tracking-wider text-(--p-text-muted-color)">Action</th>
+        </tr>
+      </ng-template>
+
+      <ng-template #body let-wine>
+        <tr>
+          <td class="px-5 py-5">
+            <div class="font-semibold">{{ wine.appellation }}</div>
+            <div class="mt-1 text-sm text-(--p-text-muted-color)">
+              {{ wine.producer }}@if (wine.cuvee) { · {{ wine.cuvee }} }
+            </div>
+          </td>
+          <td class="px-5 py-5">{{ wine.region.name }}</td>
+          <td class="px-5 py-5">{{ wine.vintage ?? '—' }}</td>
+          <!-- Volume et Prix : un format par ligne, alignés d'une colonne à l'autre -->
+          <td class="px-5 py-5">
+            @for (format of wine.formats; track format.volumeCl) {
+              <div class="whitespace-nowrap leading-7">{{ formatVolume(format.volumeCl) }}</div>
+            }
+          </td>
+          <td class="px-5 py-5">
+            @for (format of wine.formats; track format.volumeCl) {
+              <div class="whitespace-nowrap leading-7 font-semibold">{{ formatPrice(format.price) }}</div>
+            }
+          </td>
+          <td class="px-5 py-5">
+            <!-- Toute la pastille est cliquable ; elle passe en bordeaux quand la case est cochée -->
+            <div class="flex flex-col items-start gap-2">
+              <label class="toggle-pill" [class.is-on]="wine.available">
+                <p-checkbox [inputId]="'available-' + wine.id" [binary]="true"
+                            [ngModel]="wine.available" (ngModelChange)="setAvailability(wine, $event)" />
+                Disponible
+              </label>
+              <label class="toggle-pill" [class.is-on]="wine.featured">
+                <p-checkbox [inputId]="'featured-' + wine.id" [binary]="true"
+                            [ngModel]="wine.featured" (ngModelChange)="setFeatured(wine, $event)" />
+                ★ En vedette
+              </label>
+            </div>
+          </td>
+          <td class="px-5 py-5">
+            <button pButton type="button" [outlined]="true" severity="danger" class="gap-2 rounded-lg whitespace-nowrap"
+                    (click)="deleteWine(wine)">
+              <svg class="size-4" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"
+                   stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+                <path d="M3 6h18M8 6V4h8v2M19 6l-1 14H6L5 6M10 11v6M14 11v6" />
+              </svg>
+              Supprimer
+            </button>
+          </td>
+        </tr>
+      </ng-template>
+
+      <ng-template #emptymessage>
+        <tr>
+          <td colspan="7" class="px-5 py-8 text-center text-(--p-text-muted-color)">
+            {{ wines().length ? 'Aucun vin ne correspond à votre recherche.' : 'Aucun vin à la carte pour l\'instant.' }}
+          </td>
+        </tr>
+      </ng-template>
+    </p-table>
+  </div>
+</section>
+
+</div>
