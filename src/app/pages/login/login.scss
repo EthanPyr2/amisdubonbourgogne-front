@@ -1,0 +1,37 @@
+.eyebrow {
+  display: flex;
+  align-items: center;
+  gap: 0.75rem;
+  margin-bottom: 1.25rem;
+  font-size: 0.75rem;
+  font-weight: 600;
+  letter-spacing: 0.25em;
+  text-transform: uppercase;
+  color: var(--p-primary-color);
+
+  &::before {
+    content: '';
+    width: 2rem;
+    height: 1px;
+    background: currentColor;
+  }
+}
+
+.error {
+  padding: 0.875rem 1rem;
+  border-left: 3px solid var(--p-primary-color);
+  background: color-mix(in srgb, var(--p-primary-color) 12%, transparent);
+  font-size: 0.875rem;
+}
+
+.back-link {
+  display: inline-block;
+  margin-top: 2rem;
+  font-size: 0.875rem;
+  color: var(--p-text-muted-color);
+  text-decoration: none;
+
+  &:hover {
+    color: var(--p-text-color);
+  }
+}

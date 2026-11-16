@@ -1,0 +1,31 @@
+<section class="flex min-h-[70vh] items-center justify-center px-6 py-20">
+  <div class="w-full max-w-md rounded-2xl border border-(--app-border-subtle) bg-(--p-content-background) p-10">
+    <p class="eyebrow">Espace caviste</p>
+    <h1 class="font-display text-4xl text-(--p-text-color)">Connexion</h1>
+    <p class="mt-3 text-(--p-text-muted-color)">Accès réservé à la gestion de la carte des vins.</p>
+
+    <form #loginForm="ngForm" (ngSubmit)="onSubmit(loginForm)" class="mt-10 flex flex-col gap-6">
+      <div class="flex flex-col gap-2">
+        <label for="username" class="text-sm font-semibold">Identifiant</label>
+        <input pInputText id="username" name="username" [(ngModel)]="username" required
+               autocomplete="username" autofocus class="h-14 w-full rounded-lg border-(--app-border-field)" />
+      </div>
+      <div class="flex flex-col gap-2">
+        <label for="password" class="text-sm font-semibold">Mot de passe</label>
+        <input pInputText id="password" name="password" type="password" [(ngModel)]="password" required
+               autocomplete="current-password" class="h-14 w-full rounded-lg border-(--app-border-field)" />
+      </div>
+
+      @if (error()) {
+        <p class="error" role="alert">{{ error() }}</p>
+      }
+
+      <button pButton type="submit" class="mt-2 h-14 w-full justify-center rounded-lg text-base font-semibold"
+              [disabled]="submitting()">
+        {{ submitting() ? 'Connexion…' : 'Se connecter' }}
+      </button>
+    </form>
+
+    <a routerLink="/" class="back-link">← Retour au site</a>
+  </div>
+</section>

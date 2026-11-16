@@ -1,4 +1,14 @@
 
+<!-- Bandeau : utilisateur connecté + déconnexion -->
+<div class="mx-auto flex max-w-[1800px] flex-wrap items-center justify-between gap-4 px-6 pt-6">
+  <p class="text-sm text-(--p-text-muted-color)">
+    Connecté en tant que <strong class="text-(--p-text-color)">{{ auth.user() }}</strong>
+  </p>
+  <button pButton type="button" [outlined]="true" severity="secondary" class="rounded-lg" (click)="logout()">
+    Se déconnecter
+  </button>
+</div>
+
 <div class="mx-auto grid max-w-[1800px] items-start gap-8 p-6 xl:grid-cols-[minmax(0,5fr)_minmax(0,8fr)]">
 
 <section #formPanel class="scroll-mt-28 rounded-2xl border border-(--app-border-subtle) bg-(--p-content-background) p-10">

@@ -9,6 +9,8 @@ import { TableModule } from 'primeng/table';
 import { TextareaModule } from 'primeng/textarea';
 import { Wine, WineColor, WineRequest } from '../../model/wine.model';
 import { WineAdminService } from '../../service/wineAdmin.service';
+import { AuthService } from '../../service/auth.service';
+import { Router } from '@angular/router';
 import {Checkbox} from 'primeng/checkbox';
 
 /** Filtre de statut du tableau (null = tous les vins) */
@@ -117,6 +119,16 @@ export class Admin {
   }
 
   private readonly wineAdminService = inject(WineAdminService);
+  protected readonly auth = inject(AuthService);
+  private readonly router = inject(Router);
+
+  /** « Se déconnecter » : ferme la session côté back puis retourne à la page de connexion */
+  protected logout(): void {
+    this.auth.logout().subscribe({
+      next: () => this.router.navigate(['/login']),
+      error: () => this.router.navigate(['/login']),
+    });
+  }
 
   /** Vin en cours de modification (null = le formulaire sert à ajouter un vin) */
   protected readonly editing = signal<Wine | null>(null);
