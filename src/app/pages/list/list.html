@@ -57,19 +57,25 @@
 
   <!-- Résumé -->
   <div class="mt-8 mb-12 flex flex-wrap justify-between gap-4 text-sm text-(--p-text-muted-color)">
-    <p><strong class="text-(--p-text-color)">{{ totalWines }}</strong> vins trouvés</p>
+    <p><strong class="text-(--p-text-color)">{{ totalWines() }}</strong> {{ totalWines() > 1 ? 'vins trouvés' : 'vin trouvé' }}</p>
     <p>Choisissez un vin pour voir sa fiche</p>
   </div>
 
   <!-- ============ LISTE GROUPÉE PAR RÉGION ============ -->
-  @for (group of groups; track group.region) {
+  @if (loading()) {
+    <p class="py-12 text-center text-(--p-text-muted-color)">Chargement de la carte…</p>
+  } @else if (error()) {
+    <p class="py-12 text-center text-(--p-text-muted-color)">La carte n'a pas pu être chargée. Réessayez dans un instant.</p>
+  }
+
+  @for (group of groups(); track group.region) {
     <section class="mb-16">
       <!-- Nom de la région, filet, nombre de vins -->
       <header class="mb-6 flex items-center gap-6">
         <h3 class="font-display text-4xl whitespace-nowrap">{{ group.region }}</h3>
         <span class="h-px flex-1 bg-(--app-border-field)" aria-hidden="true"></span>
         <span class="text-sm whitespace-nowrap text-(--p-text-muted-color)">
-          {{ countWines(group) }} {{ countWines(group) > 1 ? 'vins' : 'vin' }}
+          {{ group.count }} {{ group.count > 1 ? 'vins' : 'vin' }}
         </span>
       </header>
 
@@ -81,10 +87,10 @@
           <span>Vin</span><span>Producteur</span><span>Millésime</span><span>Formats &amp; prix</span><span></span>
         </div>
 
-        @for (wine of category.wines; track wine.name) {
+        @for (wine of category.wines; track wine.slug) {
           <article class="wine-row" [class.is-open]="isOpen(wine)">
             <div>
-              <h5 class="font-display text-2xl leading-snug">{{ wine.name }}</h5>
+              <h5 class="font-display text-2xl leading-snug">{{ wine.appellation }}</h5>
               @if (wine.cuvee) {
                 <p class="mt-1 text-sm text-(--p-text-muted-color)">{{ wine.cuvee }}</p>
               }
@@ -92,16 +98,16 @@
             <span class="text-(--p-text-muted-color)">{{ wine.producer }}</span>
             <span>{{ wine.vintage ?? 'À préciser' }}</span>
             <div class="flex flex-col gap-1">
-              @for (format of wine.formats; track format.volume) {
+              @for (format of wine.formats; track format.volumeCl) {
                 <span class="flex justify-between gap-4 whitespace-nowrap md:justify-start">
-                  <span class="w-16 text-sm text-(--p-text-muted-color)">{{ format.volume }}</span>
-                  <strong>{{ format.price }}</strong>
+                  <span class="w-16 text-sm text-(--p-text-muted-color)">{{ formatVolume(format.volumeCl) }}</span>
+                  <strong>{{ formatPrice(format.price) }}</strong>
                 </span>
               }
             </div>
             <button type="button" class="open-btn" (click)="toggle(wine)"
                     [attr.aria-expanded]="isOpen(wine)" [attr.aria-controls]="'fiche-' + $index"
-                    [attr.aria-label]="(isOpen(wine) ? 'Fermer la fiche de ' : 'Voir la fiche de ') + wine.name">
+                    [attr.aria-label]="(isOpen(wine) ? 'Fermer la fiche de ' : 'Voir la fiche de ') + wine.appellation">
               {{ isOpen(wine) ? '−' : '+' }}
             </button>
 
@@ -110,17 +116,17 @@
               <div class="wine-detail" [id]="'fiche-' + $index">
                 <div>
                   <p class="detail-label">Notes de dégustation</p>
-                  <p class="leading-relaxed">{{ wine.description ?? 'Description à venir.' }}</p>
+                  <p class="leading-relaxed whitespace-pre-line">{{ wine.description || 'Description à venir.' }}</p>
                 </div>
                 <dl class="detail-facts">
-                  <div><dt class="detail-label">Couleur</dt><dd>{{ wine.color }}</dd></div>
-                  <div><dt class="detail-label">Cépages</dt><dd>{{ wine.grapes ?? '—' }}</dd></div>
+                  <div><dt class="detail-label">Couleur</dt><dd>{{ colorLabel(wine) }}</dd></div>
+                  <div><dt class="detail-label">Cépages</dt><dd>{{ wine.grapes || '—' }}</dd></div>
                   <div><dt class="detail-label">Millésime</dt><dd>{{ wine.vintage ?? 'À préciser' }}</dd></div>
                   <div>
                     <dt class="detail-label">Formats</dt>
                     <dd>
-                      @for (format of wine.formats; track format.volume) {
-                        <span class="block">{{ format.volume }} · <strong>{{ format.price }}</strong></span>
+                      @for (format of wine.formats; track format.volumeCl) {
+                        <span class="block">{{ formatVolume(format.volumeCl) }} · <strong>{{ formatPrice(format.price) }}</strong></span>
                       }
                     </dd>
                   </div>
@@ -131,6 +137,10 @@
         }
       }
     </section>
+  } @empty {
+    @if (!loading() && !error()) {
+      <p class="py-12 text-center text-(--p-text-muted-color)">La carte est en cours de préparation. Revenez bientôt !</p>
+    }
   }
 </div>
 </section>
