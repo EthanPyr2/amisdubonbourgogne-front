@@ -13,7 +13,6 @@ export const appConfig: ApplicationConfig = {
     provideZonelessChangeDetection(),
     provideRouter(
       routes,
-      // Lien « Contact » → défile jusqu'à #contact ; retour en haut de page à chaque navigation
       withInMemoryScrolling({ anchorScrolling: 'enabled', scrollPositionRestoration: 'enabled' }),
     ),
     provideHttpClient(withFetch(), withInterceptors([authInterceptor])),
@@ -23,7 +22,6 @@ export const appConfig: ApplicationConfig = {
       theme: {
         preset: AmisDuBonBourgognePreset,
         options: {
-          // Place les styles PrimeNG dans la couche « primeng » (voir src/tailwind.css)
           cssLayer: { name: 'primeng', order: 'theme, base, primeng' },
         },
       },

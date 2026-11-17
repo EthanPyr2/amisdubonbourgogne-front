@@ -16,7 +16,6 @@ export class Login {
   private readonly auth = inject(AuthService);
   private readonly router = inject(Router);
 
-  /** Page à ouvrir après connexion (?redirect=/admin), limitée aux pages du site */
   private readonly redirect = (() => {
     const target = inject(ActivatedRoute).snapshot.queryParamMap.get('redirect') ?? '';
     return target.startsWith('/') && !target.startsWith('//') ? target : '/admin';
@@ -28,7 +27,6 @@ export class Login {
   protected readonly submitting = signal(false);
 
   constructor() {
-    // Prépare le cookie CSRF (nécessaire au POST de connexion) et passe directement si déjà connecté
     this.auth.checkSession().subscribe((connected) => {
       if (connected) this.router.navigateByUrl(this.redirect);
     });
@@ -49,7 +47,7 @@ export class Login {
         this.error.set(
           err.status === 401
             ? 'Identifiant ou mot de passe incorrect.'
-            : apiErrorMessage(err, 'Connexion impossible pour le moment. Réessayez.'), // ex. 429 : trop de tentatives
+            : apiErrorMessage(err, 'Connexion impossible pour le moment. Réessayez.'),
         );
       },
     });

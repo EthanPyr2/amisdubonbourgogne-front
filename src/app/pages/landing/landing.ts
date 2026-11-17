@@ -4,11 +4,9 @@ import { forkJoin } from 'rxjs';
 import { Wine, WineColor } from '../../model/wine.model';
 import { WinePublicService } from '../../service/winePublic.service';
 
-/** Une tuile de la section « Discover » */
 interface Terroir {
   title: string;
   tagline: string;
-  /** Filtre appliqué en arrivant sur la carte : /carte?region=… ou /carte?selection=vedette */
   queryParams: Record<string, string>;
 }
 
@@ -21,7 +19,6 @@ interface Terroir {
 export class Landing {
   private readonly winePublicService = inject(WinePublicService);
 
-  /** Les 3 vins de la section « Wine Spotlight » */
   protected readonly spotlight = signal<Wine[]>([]);
   protected readonly loading = signal(true);
 
@@ -33,8 +30,6 @@ export class Landing {
   ];
 
   constructor() {
-    // 3 vins : d'abord ceux « En vedette », complétés si besoin par les autres vins de la carte.
-    // forkJoin lance les deux requêtes en même temps et attend les deux réponses.
     forkJoin({
       featured: this.winePublicService.listFeatured(),
       all: this.winePublicService.list(),
@@ -48,17 +43,14 @@ export class Landing {
     });
   }
 
-  /** Prix le plus bas parmi les formats du vin */
   protected minPrice(wine: Wine): number {
     return Math.min(...wine.formats.map((f) => f.price));
   }
 
-  /** 32 → « 32,00 € » */
   protected formatPrice(price: number): string {
     return price.toLocaleString('fr-BE', { style: 'currency', currency: 'EUR' });
   }
 
-  /** Couleur de la capsule de la bouteille illustrée, selon le type de vin */
   protected capsuleColor(color: WineColor): string {
     const colors: Record<WineColor, string> = {
       ROUGE: '#7b1221',

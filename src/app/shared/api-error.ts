@@ -1,10 +1,5 @@
 import { HttpErrorResponse } from '@angular/common/http';
 
-/**
- * Message lisible pour une erreur de l'API.
- * Le back renvoie ses erreurs au format ProblemDetail : le message métier (« Région inconnue : … »)
- * est dans `detail`. Les messages techniques génériques (en anglais) sont remplacés par un texte en français.
- */
 export function apiErrorMessage(error: unknown, fallback: string): string {
   if (!(error instanceof HttpErrorResponse)) {
     return fallback;

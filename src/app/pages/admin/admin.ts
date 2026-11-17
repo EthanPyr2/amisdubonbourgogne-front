@@ -14,7 +14,6 @@ import { apiErrorMessage } from '../../shared/api-error';
 import { Router } from '@angular/router';
 import {Checkbox} from 'primeng/checkbox';
 
-/** Filtre de statut du tableau (null = tous les vins) */
 type StatusFilter = 'available' | 'unavailable' | 'featured';
 
 function matchesStatus(wine: Wine, status: StatusFilter | null): boolean {
@@ -30,13 +29,11 @@ function matchesStatus(wine: Wine, status: StatusFilter | null): boolean {
   }
 }
 
-/** Une ligne « format » du formulaire, vide tant que l'utilisateur ne l'a pas remplie */
 interface FormatForm {
   volumeCl: number | null;
   price: number | null;
 }
 
-/** Valeurs saisies dans le formulaire « Ajouter un vin » */
 interface WineForm {
   producer: string;
   cuvee: string;
@@ -49,7 +46,6 @@ interface WineForm {
   description: string;
 }
 
-/** Formulaire rempli avec un vin existant (mode « Modifier ») */
 function wineToForm(wine: Wine): WineForm {
   return {
     producer: wine.producer,
@@ -64,7 +60,6 @@ function wineToForm(wine: Wine): WineForm {
   };
 }
 
-/** Formulaire vide, avec une ligne de format à remplir */
 function emptyWine(): WineForm {
   return {
     producer: '',
@@ -107,12 +102,10 @@ export class Admin {
 
   protected wine: WineForm = emptyWine();
 
-  /** Ajoute une ligne de format vide (bouton « + Ajouter un format ») */
   protected addFormat(): void {
     this.wine.formats.push({ volumeCl: null, price: null });
   }
 
-  /** Retire une ligne de format (on en garde toujours au moins une) */
   protected removeFormat(index: number): void {
     if (this.wine.formats.length > 1) {
       this.wine.formats.splice(index, 1);
@@ -123,18 +116,15 @@ export class Admin {
   protected readonly auth = inject(AuthService);
   private readonly router = inject(Router);
 
-  /** Notification affichée en bas de l'écran après une action (succès ou erreur) */
   protected readonly notice = signal<{ type: 'success' | 'error'; text: string } | null>(null);
   private noticeTimer?: ReturnType<typeof setTimeout>;
 
   protected notify(type: 'success' | 'error', text: string): void {
     clearTimeout(this.noticeTimer);
     this.notice.set({ type, text });
-    // Un succès disparaît vite ; une erreur reste plus longtemps pour être lue
     this.noticeTimer = setTimeout(() => this.notice.set(null), type === 'success' ? 4000 : 10000);
   }
 
-  /** « Se déconnecter » : ferme la session côté back puis retourne à la page de connexion */
   protected logout(): void {
     this.auth.logout().subscribe({
       next: () => this.router.navigate(['/login']),
@@ -142,41 +132,34 @@ export class Admin {
     });
   }
 
-  /** Vin en cours de modification (null = le formulaire sert à ajouter un vin) */
   protected readonly editing = signal<Wine | null>(null);
   private readonly wineForm = viewChild.required<NgForm>('wineForm');
   private readonly formPanel = viewChild.required<ElementRef<HTMLElement>>('formPanel');
 
-  /** Bouton « Modifier » d'une ligne : remplit le formulaire avec ce vin */
   protected editWine(wine: Wine): void {
-    this.wineForm().resetForm(); // efface les erreurs affichées par un essai précédent
+    this.wineForm().resetForm();
     this.wine = wineToForm(wine);
     this.editing.set(wine);
     this.formPanel().nativeElement.scrollIntoView({ behavior: 'smooth', block: 'start' });
   }
 
-  /** « Annuler » : le formulaire repasse en mode « Ajouter un vin » */
   protected cancelEdit(): void {
     this.wineForm().resetForm();
     this.wine = emptyWine();
     this.editing.set(null);
   }
 
-  /** Tous les vins chargés depuis le back */
   protected readonly wines = signal<Wine[]>([]);
 
-  // --- Filtres du tableau « Vins à la carte » ---
   protected readonly search = signal('');
   protected readonly regionFilter = signal<string | null>(null);
   protected readonly statusFilter = signal<StatusFilter | null>(null);
 
-  /** Régions présentes dans la carte, pour la liste « Toutes régions » */
   protected readonly regionOptions = computed(() => [
     { label: 'Toutes régions', value: null },
     ...[...new Set(this.wines().map((w) => w.region.name))].sort().map((name) => ({ label: name, value: name })),
   ]);
 
-  /** Choix de la liste « Tous statuts » */
   protected readonly statusOptions: { label: string; value: StatusFilter | null }[] = [
     { label: 'Tous statuts', value: null },
     { label: 'Disponibles', value: 'available' },
@@ -184,7 +167,6 @@ export class Admin {
     { label: 'En vedette', value: 'featured' },
   ];
 
-  /** Vins affichés : la liste complète, filtrée par la recherche, la région et le millésime */
   protected readonly filteredWines = computed(() => {
     const term = this.search().trim().toLowerCase();
     return this.wines().filter(
@@ -201,39 +183,34 @@ export class Admin {
     this.loadWines();
   }
 
-  /** 75 → « 75 cl », 37.5 → « 37,5 cl » */
   protected formatVolume(volumeCl: number): string {
     return `${volumeCl.toLocaleString('fr-BE', { maximumFractionDigits: 1 })} cl`;
   }
 
-  /** 32 → « 32,00 € » */
   protected formatPrice(price: number): string {
     return price.toLocaleString('fr-BE', { style: 'currency', currency: 'EUR' });
   }
 
-  /** Coche / décoche « Disponible » : enregistre tout de suite dans le back */
   protected setAvailability(wine: Wine, available: boolean): void {
     this.wineAdminService.setAvailability(wine.id!, available).subscribe({
       next: () => this.wines.update((wines) => wines.map((w) => (w.id === wine.id ? { ...w, available } : w))),
       error: (err) => {
         this.notify('error', apiErrorMessage(err, "La disponibilité n'a pas pu être modifiée."));
-        this.loadWines(); // on recharge pour que la case reflète l'état réel
+        this.loadWines();
       },
     });
   }
 
-  /** Coche / décoche « En vedette » : enregistre tout de suite dans le back */
   protected setFeatured(wine: Wine, featured: boolean): void {
     this.wineAdminService.setFeatured(wine.id!, featured).subscribe({
       next: () => this.wines.update((wines) => wines.map((w) => (w.id === wine.id ? { ...w, featured } : w))),
       error: (err) => {
         this.notify('error', apiErrorMessage(err, "La mise en vedette n'a pas pu être modifiée."));
-        this.loadWines(); // on recharge pour que la case reflète l'état réel
+        this.loadWines();
       },
     });
   }
 
-  /** Bouton « Supprimer » : demande confirmation, puis supprime dans le back */
   protected deleteWine(wine: Wine): void {
     const name = [wine.appellation, wine.cuvee, wine.vintage].filter(Boolean).join(' ');
     if (!confirm(`Supprimer « ${name} » (${wine.producer}) de la carte ?\nCette action est définitive.`)) {
@@ -242,17 +219,16 @@ export class Admin {
     this.wineAdminService.delete(wine.id!).subscribe({
       next: () => {
         this.wines.update((wines) => wines.filter((w) => w.id !== wine.id));
-        if (this.editing()?.id === wine.id) this.cancelEdit(); // le vin modifié n'existe plus
+        if (this.editing()?.id === wine.id) this.cancelEdit();
         this.notify('success', `${wine.appellation}${wine.vintage ? ' ' + wine.vintage : ''} supprimé de la carte.`);
       },
       error: (err) => {
         this.notify('error', apiErrorMessage(err, "Le vin n'a pas pu être supprimé."));
-        this.loadWines(); // on recharge pour afficher l'état réel
+        this.loadWines();
       },
     });
   }
 
-  /** Charge la liste des vins depuis le back (GET /api/admin/wines) */
   private loadWines(): void {
     this.wineAdminService.listAdmin().subscribe({
       next: (wines) => this.wines.set(wines),
@@ -261,36 +237,31 @@ export class Admin {
   }
 
   protected onSubmit(form: NgForm): void {
-    // 1. On ne va pas plus loin si un champ obligatoire est vide
     if (form.invalid) {
       form.control.markAllAsTouched();
       return;
     }
 
-    // 2. On transforme les valeurs du formulaire en ce qu'attend le back (WineRequest)
     const request: WineRequest = {
       producer: this.wine.producer.trim(),
       appellation: this.wine.appellation.trim(),
       cuvee: this.wine.cuvee.trim() || null,
       region: this.wine.region.trim(),
-      color: this.wine.color!, // garanti par `required` dans le formulaire
+      color: this.wine.color!,
       vintage: this.wine.vintage,
       grapes: this.wine.grapes.trim() || null,
       description: this.wine.description.trim() || null,
-      // volume et prix garantis par `required` dans le formulaire
       formats: this.wine.formats.map((f) => ({ volumeCl: f.volumeCl!, price: f.price! })),
     };
 
-    // 3. On envoie : PUT si on modifie un vin, POST si on en ajoute un.
-    //    Rien ne part tant qu'on n'a pas appelé subscribe().
     const editing = this.editing();
     const save$ = editing
       ? this.wineAdminService.update(editing.id!, request)
       : this.wineAdminService.create(request);
     save$.subscribe({
       next: (saved) => {
-        this.cancelEdit(); // vide le formulaire et repasse en mode « Ajouter »
-        this.loadWines(); // le tableau affiche le vin ajouté ou modifié
+        this.cancelEdit();
+        this.loadWines();
         this.notify('success', `${saved.appellation}${saved.vintage ? ' ' + saved.vintage : ''} ${editing ? 'modifié' : 'ajouté à la carte'}.`);
       },
       error: (err) =>

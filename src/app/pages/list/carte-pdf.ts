@@ -3,31 +3,24 @@ import { autoTable } from 'jspdf-autotable';
 import { formatPrice, formatVolume } from '../../shared/format';
 import { RegionGroup } from './group-wines';
 
-// Couleurs de la charte (en RGB pour jsPDF)
 const BORDEAUX: [number, number, number] = [176, 26, 48];
 const TEXT: [number, number, number] = [26, 26, 26];
 const MUTED: [number, number, number] = [110, 110, 110];
 const LINE: [number, number, number] = [225, 225, 225];
 
-const MARGIN = 18; // mm
-const FOOTER_SPACE = 22; // mm réservés en bas de page pour le pied de page
+const MARGIN = 18;
+const FOOTER_SPACE = 22;
 
-/**
- * Les polices intégrées de jsPDF ne connaissent pas l'espace fine insécable
- * que toLocaleString('fr-BE') met avant « € » : on la remplace par une espace normale.
- */
 function clean(text: string): string {
   return text.replace(/[  ]/g, ' ');
 }
 
-/** Génère la carte des vins en PDF (A4) et lance le téléchargement. */
 export function downloadCartePdf(groups: RegionGroup[]): void {
   const doc = new jsPDF({ unit: 'mm', format: 'a4' });
   const pageWidth = doc.internal.pageSize.getWidth();
   const pageHeight = doc.internal.pageSize.getHeight();
   const today = new Date().toLocaleDateString('fr-BE', { day: 'numeric', month: 'long', year: 'numeric' });
 
-  // ---------- En-tête ----------
   let y = 24;
   doc.setFont('helvetica', 'bold').setFontSize(8).setTextColor(...BORDEAUX);
   doc.text('LES AMIS DU BON BOURGOGNE', MARGIN, y, { charSpace: 1 });
@@ -41,9 +34,7 @@ export function downloadCartePdf(groups: RegionGroup[]): void {
   doc.setDrawColor(...BORDEAUX).setLineWidth(0.6).line(MARGIN, y, MARGIN + 14, y);
   y += 10;
 
-  // ---------- Régions ----------
   for (const group of groups) {
-    // Pas de titre de région isolé en bas de page
     if (y > pageHeight - FOOTER_SPACE - 30) {
       doc.addPage();
       y = 22;
@@ -55,7 +46,6 @@ export function downloadCartePdf(groups: RegionGroup[]): void {
     y += 6;
 
     for (const category of group.categories) {
-      // Pas de catégorie (titre + en-têtes) isolée en bas de page sans au moins un vin
       if (y > pageHeight - FOOTER_SPACE - 25) {
         doc.addPage();
         y = 22;
@@ -84,13 +74,11 @@ export function downloadCartePdf(groups: RegionGroup[]): void {
           3: { cellWidth: 20 },
           4: { cellWidth: 'auto', halign: 'right', fontStyle: 'bold', cellPadding: { top: 2.2, bottom: 2.2, left: 0, right: 0 } },
         },
-        // En-tête « Prix » aligné à droite, comme les prix
         didParseCell: (data) => {
           if (data.section === 'head' && data.column.index === 4) {
             data.cell.styles.halign = 'right';
           }
         },
-        // Fin filet sous chaque vin
         didDrawCell: (data) => {
           if (data.section === 'body' && data.column.index === 0) {
             doc.setDrawColor(...LINE).setLineWidth(0.2);
@@ -103,7 +91,6 @@ export function downloadCartePdf(groups: RegionGroup[]): void {
     y += 4;
   }
 
-  // ---------- Pied de page sur chaque page ----------
   const pages = doc.getNumberOfPages();
   for (let page = 1; page <= pages; page++) {
     doc.setPage(page);

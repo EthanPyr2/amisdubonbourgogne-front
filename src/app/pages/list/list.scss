@@ -1,4 +1,3 @@
-// Surtitre en capitales bordeaux précédé d'un filet (même style que la landing)
 .eyebrow {
   display: flex;
   align-items: center;
@@ -18,7 +17,6 @@
   }
 }
 
-// Grand mot en filigrane dans l'en-tête
 .watermark {
   position: absolute;
   right: -0.05em;
@@ -33,7 +31,6 @@
   user-select: none;
 }
 
-// Bouton « Télécharger la carte (PDF) » (même style que « Nous écrire »)
 .pdf-btn {
   display: inline-flex;
   align-items: center;
@@ -61,16 +58,12 @@
   }
 }
 
-// ---------- Zone claire sous l'en-tête ----------
-// color-scheme: light fait passer toutes les couleurs du thème (light-dark()) en version claire
-// à l'intérieur de la zone, même quand le site est en mode sombre.
 .light-band {
   color-scheme: light;
   background: #f4f1ec;
   color: var(--p-text-color);
 }
 
-// ---------- Filtres ----------
 .filters {
   padding: 1.75rem;
   border: 1px solid var(--app-border-subtle);
@@ -127,7 +120,6 @@
   }
 }
 
-// ---------- Lignes de vins ----------
 .wine-row {
   display: grid;
   grid-template-columns: minmax(0, 2.2fr) minmax(0, 1.4fr) 7rem minmax(0, 1.3fr) 3rem;
@@ -147,7 +139,6 @@
     transform: translateX(4px);
   }
 
-  // Ligne d'en-têtes : pas de cadre, petites capitales grises
   &--head {
     padding-top: 0;
     padding-bottom: 0.5rem;
@@ -160,7 +151,6 @@
     color: var(--p-text-muted-color);
   }
 
-  // Sur mobile : une seule colonne, en-têtes masqués
   @media (max-width: 767px) {
     grid-template-columns: 1fr auto;
     gap: 0.5rem 1rem;
@@ -182,7 +172,6 @@
   }
 }
 
-// Ligne dépliée : contour bordeaux, pas de décalage au survol
 .wine-row.is-open {
   border-color: var(--p-primary-color);
 
@@ -191,7 +180,6 @@
   }
 }
 
-// Fiche dépliée : occupe toute la largeur de la ligne
 .wine-detail {
   grid-column: 1 / -1;
   display: grid;

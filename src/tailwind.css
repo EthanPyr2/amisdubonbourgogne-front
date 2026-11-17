@@ -1,4 +1,3 @@
-/* Ordre des couches : les utilitaires Tailwind passent après PrimeNG et peuvent donc le surcharger */
 @layer theme, base, primeng, components, utilities;
 
 @import "tailwindcss";

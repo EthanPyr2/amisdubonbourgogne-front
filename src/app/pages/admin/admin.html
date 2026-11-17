@@ -1,5 +1,3 @@
-
-<!-- Bandeau : utilisateur connecté + déconnexion -->
 <div class="mx-auto flex max-w-[1800px] flex-wrap items-center justify-between gap-4 px-6 pt-6">
   <p class="text-sm text-(--p-text-muted-color)">
     Connecté en tant que <strong class="text-(--p-text-color)">{{ auth.user() }}</strong>
@@ -80,7 +78,6 @@
                      class="w-full" inputStyleClass="h-14 w-full rounded-lg border-(--app-border-field)" />
     </div>
 
-    <!-- Formats : une ligne par taille de bouteille, chacune avec son prix -->
     <fieldset class="col-span-2 flex flex-col gap-3">
       <legend class="mb-2 text-sm font-semibold">
         Formats et prix <span class="text-(--p-primary-400)">*</span>
@@ -129,7 +126,6 @@
   </form>
 </section>
 <section class="rounded-2xl border border-(--app-border-subtle) bg-(--p-content-background) p-10">
-  <!-- En-tête : titre + nombre de vins -->
   <header class="mb-8 flex items-start justify-between gap-6">
     <div>
       <h2 class="font-display text-4xl text-(--p-text-color)">Vins à la carte</h2>
@@ -140,7 +136,6 @@
     </span>
   </header>
 
-  <!-- Filtres -->
   <div class="mb-6 flex flex-wrap gap-4">
     <div class="relative min-w-60 flex-1">
       <svg class="pointer-events-none absolute top-1/2 left-4 size-5 -translate-y-1/2 text-(--p-text-muted-color)"
@@ -159,7 +154,6 @@
               class="h-14 w-48 items-center rounded-lg border-(--app-border-field)" />
   </div>
 
-  <!-- Tableau encadré -->
   <div class="overflow-hidden rounded-xl border border-(--app-border-field) [&_tbody_tr:last-child_td]:border-b-0">
     <p-table [value]="filteredWines()">
       <ng-template #header>
@@ -184,7 +178,6 @@
           </td>
           <td class="px-5 py-5">{{ wine.region.name }}</td>
           <td class="px-5 py-5">{{ wine.vintage ?? '—' }}</td>
-          <!-- Volume et Prix : un format par ligne, alignés d'une colonne à l'autre -->
           <td class="px-5 py-5">
             @for (format of wine.formats; track format.volumeCl) {
               <div class="whitespace-nowrap leading-7">{{ formatVolume(format.volumeCl) }}</div>
@@ -196,7 +189,6 @@
             }
           </td>
           <td class="px-5 py-5">
-            <!-- Toute la pastille est cliquable ; elle passe en bordeaux quand la case est cochée -->
             <div class="flex flex-col items-start gap-2">
               <label class="toggle-pill" [class.is-on]="wine.available">
                 <p-checkbox [inputId]="'available-' + wine.id" [binary]="true"
@@ -244,7 +236,6 @@
 
 </div>
 
-<!-- Notification après une action (succès ou erreur) -->
 @if (notice(); as n) {
   <div class="notice" [class.is-error]="n.type === 'error'" [attr.role]="n.type === 'error' ? 'alert' : 'status'">
     <span>{{ n.text }}</span>

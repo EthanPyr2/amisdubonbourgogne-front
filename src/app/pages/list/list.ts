@@ -11,11 +11,6 @@ import { groupWines, RegionGroup } from './group-wines';
 
 type SortKey = 'carte' | 'prix-asc' | 'prix-desc' | 'nom';
 
-/**
- * Boutons de région. Une entrée regroupe un ou plusieurs slugs de régions en base
- * (le Rhône réunit Nord et Sud). « Autres » = toutes les régions non listées ici.
- * La clé est celle de l'URL : /carte?region=rhone (utilisée aussi par les tuiles de la landing).
- */
 const REGION_FILTERS = [
   { key: 'bourgogne', label: 'Bourgogne', slugs: ['bourgogne'] },
   { key: 'rhone', label: 'Rhône', slugs: ['vallee-du-rhone-nord', 'vallee-du-rhone-sud'] },
@@ -23,7 +18,6 @@ const REGION_FILTERS = [
 ] as const;
 const KNOWN_SLUGS: string[] = REGION_FILTERS.flatMap((r) => [...r.slugs]);
 
-/** Texte en minuscules sans accents : « Côtes » → « cotes » */
 function normalize(text: string): string {
   return text.normalize('NFD').replace(/\p{M}/gu, '').toLowerCase();
 }
@@ -31,7 +25,6 @@ function normalize(text: string): string {
 function minPrice(wine: Wine): number {
   return Math.min(...wine.formats.map((f) => f.price));
 }
-
 
 @Component({
   imports: [FormsModule, SelectModule],
@@ -45,7 +38,6 @@ export class List {
   private readonly route = inject(ActivatedRoute);
   private readonly router = inject(Router);
 
-  // --- Choix proposés dans les filtres ---
   protected readonly categoryOptions: { label: string; value: WineColor | null }[] = [
     { label: 'Toutes', value: null },
     ...(Object.entries(COLOR_LABELS) as [WineColor, string][]).map(([value, label]) => ({ label, value })),
@@ -62,23 +54,17 @@ export class List {
     { key: 'autres', label: 'Autres' },
   ];
 
-  // --- État des filtres ---
   protected readonly search = signal('');
   protected readonly color = signal<WineColor | null>(null);
   protected readonly sort = signal<SortKey>('carte');
-  /** Région choisie : lue dans l'URL (?region=…), null = toutes */
   protected readonly region = signal<string | null>(null);
-  /** « Nos découvertes » : seulement les vins en vedette, lu dans l'URL (?selection=vedette) */
   protected readonly featuredOnly = signal(false);
-  /** Slugs des vins en vedette (GET /api/wines/featured) : la liste publique ne porte pas cette info */
   private readonly featuredSlugs = signal<ReadonlySet<string>>(new Set());
 
-  /** Vins disponibles, dans l'ordre de la carte (trié par le back : région, couleur, appellation) */
   protected readonly wines = signal<Wine[]>([]);
   protected readonly loading = signal(true);
   protected readonly error = signal(false);
 
-  /** Vins qui passent tous les filtres, triés selon « Trier par » */
   protected readonly filteredWines = computed(() => {
     const term = normalize(this.search().trim());
     const region = this.region();
@@ -98,17 +84,12 @@ export class List {
       case 'nom':
         return [...filtered].sort((a, b) => a.appellation.localeCompare(b.appellation, 'fr'));
       default:
-        return filtered; // ordre de la carte, fourni par le back
+        return filtered;
     }
   });
 
-  /**
-   * Regroupe les vins filtrés par région puis par couleur.
-   * Les groupes gardent l'ordre de la carte ; le tri choisi s'applique à l'intérieur de chaque groupe.
-   */
   protected readonly groups = computed<RegionGroup[]>(() => groupWines(this.filteredWines(), this.regionOrder()));
 
-  /** Ordre des régions de la carte (celui envoyé par le back) */
   private readonly regionOrder = computed(() => [...new Set(this.wines().map((w) => w.region.name))]);
 
   protected readonly totalWines = computed(() => this.filteredWines().length);
@@ -117,13 +98,11 @@ export class List {
       !!this.search().trim() || !!this.color() || !!this.region() || this.featuredOnly() || this.sort() !== 'carte',
   );
 
-  // Fonctions d'affichage utilisées dans le template
   protected readonly formatVolume = formatVolume;
   protected readonly formatPrice = formatPrice;
   protected readonly colorLabel = (wine: Wine) => COLOR_LABELS[wine.color];
 
   constructor() {
-    // La région vient de l'URL : boutons de région, tuiles de la landing, lien partagé
     this.route.queryParamMap
       .pipe(takeUntilDestroyed())
       .subscribe((params) => {
@@ -131,7 +110,6 @@ export class List {
         this.featuredOnly.set(params.get('selection') === 'vedette');
       });
 
-    // Les deux listes en parallèle : tous les vins disponibles + ceux en vedette
     forkJoin({ all: this.winePublicService.list(), featured: this.winePublicService.listFeatured() }).subscribe({
       next: ({ all, featured }) => {
         this.wines.set(all);
@@ -145,7 +123,6 @@ export class List {
     });
   }
 
-  /** Bouton de région : met à jour l'URL (?region=…), ce qui met à jour le filtre */
   protected selectRegion(key: string | null): void {
     this.router.navigate([], {
       relativeTo: this.route,
@@ -155,7 +132,6 @@ export class List {
     });
   }
 
-  /** Bouton « Nos découvertes » : active / désactive le filtre via l'URL (?selection=vedette) */
   protected toggleFeatured(): void {
     this.router.navigate([], {
       relativeTo: this.route,
@@ -165,13 +141,8 @@ export class List {
     });
   }
 
-  /** PDF en cours de préparation (le bouton affiche « Préparation… ») */
   protected readonly generatingPdf = signal(false);
 
-  /**
-   * Télécharge toute la carte (tous les vins disponibles, sans tenir compte des filtres) en PDF.
-   * jsPDF n'est chargé qu'au premier clic : il n'alourdit pas l'ouverture de la page.
-   */
   protected async downloadPdf(): Promise<void> {
     if (this.generatingPdf() || !this.wines().length) return;
     this.generatingPdf.set(true);
@@ -199,7 +170,6 @@ export class List {
     return filter ? (filter.slugs as readonly string[]).includes(wine.region.slug) : true;
   }
 
-  /** Slugs des vins dont la fiche est dépliée (bouton + / −) */
   private readonly openWines = signal<ReadonlySet<string>>(new Set());
 
   protected isOpen(wine: Wine): boolean {

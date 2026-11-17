@@ -1,4 +1,3 @@
-<!-- ============ HERO ============ -->
 <section class="relative overflow-hidden">
   <div class="relative z-10 mx-auto grid max-w-7xl items-end gap-12 px-6 pt-20 pb-40 lg:grid-cols-[1.5fr_1fr]">
     <div>
@@ -15,11 +14,9 @@
       <a routerLink="/carte" class="link-arrow mt-8">Découvrir la cave <span aria-hidden="true">→</span></a>
     </div>
   </div>
-  <!-- Grand mot en filigrane derrière le titre -->
   <span class="hero-watermark" aria-hidden="true">Bourgogne</span>
 </section>
 
-<!-- ============ WINE SPOTLIGHT (section claire) ============ -->
 <section id="selection" class="spotlight">
   <div class="mx-auto max-w-7xl px-6 py-24">
     <div class="mb-12 flex flex-wrap items-end justify-between gap-6">
@@ -38,7 +35,6 @@
       <div class="grid gap-6 md:grid-cols-3">
         @for (wine of spotlight(); track wine.slug) {
           <article class="wine-card">
-            <!-- Illustration : bouteille dessinée, capsule de la couleur du vin -->
             <div class="wine-card__visual">
               @if (wine.vintage) {
                 <span class="wine-card__badge">{{ wine.vintage }}</span>
@@ -82,7 +78,6 @@
   </div>
 </section>
 
-<!-- ============ DISCOVER ============ -->
 <section class="mx-auto max-w-7xl px-6 py-24">
   <div class="mb-12 flex flex-wrap items-end justify-between gap-6">
     <div>
@@ -92,7 +87,6 @@
     <p class="max-w-xs text-sm text-(--p-text-muted-color)">Trois régions, une même passion. Trouvez votre prochaine bouteille.</p>
   </div>
 
-  <!-- Grille 2 × 2 : les fines lignes sont le fond qui apparaît entre les tuiles (gap-px) -->
   <div class="grid gap-px border border-(--app-border-subtle) bg-(--app-border-subtle) md:grid-cols-2">
     @for (terroir of terroirs; track terroir.title; let i = $index) {
       <a class="terroir" routerLink="/carte" [queryParams]="terroir.queryParams">

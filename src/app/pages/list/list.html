@@ -1,4 +1,3 @@
-  <!-- ============ EN-TÊTE ============ -->
 <section class="relative overflow-hidden border-b border-(--app-border-subtle)">
   <div class="relative z-10 mx-auto max-w-7xl px-6 pt-20 pb-28">
     <p class="eyebrow">La sélection de la cave</p>
@@ -8,7 +7,6 @@
     </p>
     <span class="mt-8 block h-0.5 w-14 bg-(--p-primary-color)" aria-hidden="true"></span>
 
-    <!-- Télécharger toute la carte en PDF -->
     <button type="button" class="pdf-btn mt-10" (click)="downloadPdf()"
             [disabled]="loading() || !wines().length || generatingPdf()">
       <svg class="size-4" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"
@@ -21,10 +19,8 @@
   <span class="watermark" aria-hidden="true">Sélection</span>
 </section>
 
-<!-- Zone claire (comme le Wine Spotlight de la landing), quel que soit le mode -->
 <section class="light-band">
 <div class="mx-auto max-w-7xl px-6 py-20">
-  <!-- ============ TITRE + FILTRES ============ -->
   <div class="mb-10 flex flex-wrap items-end justify-between gap-6">
     <div>
       <p class="eyebrow">À découvrir</p>
@@ -35,7 +31,6 @@
     </p>
   </div>
 
-  <!-- Panneau de filtres -->
   <div class="filters">
     <div class="grid gap-5 md:grid-cols-[1fr_14rem_14rem]">
       <label class="flex flex-col gap-2">
@@ -70,7 +65,6 @@
           {{ button.label }}
         </button>
       }
-      <!-- Se combine avec la région : ex. les coups de cœur de Bourgogne -->
       <span class="mx-1 hidden w-px self-stretch bg-(--app-border-field) sm:block" aria-hidden="true"></span>
       <button type="button" class="region-pill" [class.is-active]="featuredOnly()"
               [attr.aria-pressed]="featuredOnly()" (click)="toggleFeatured()">
@@ -79,13 +73,11 @@
     </div>
   </div>
 
-  <!-- Résumé -->
   <div class="mt-8 mb-12 flex flex-wrap justify-between gap-4 text-sm text-(--p-text-muted-color)">
     <p><strong class="text-(--p-text-color)">{{ totalWines() }}</strong> {{ totalWines() > 1 ? 'vins trouvés' : 'vin trouvé' }}</p>
     <p>Choisissez un vin pour voir sa fiche</p>
   </div>
 
-  <!-- ============ LISTE GROUPÉE PAR RÉGION ============ -->
   @if (loading()) {
     <p class="py-12 text-center text-(--p-text-muted-color)">Chargement de la carte…</p>
   } @else if (error()) {
@@ -94,7 +86,6 @@
 
   @for (group of groups(); track group.region) {
     <section class="mb-16">
-      <!-- Nom de la région, filet, nombre de vins -->
       <header class="mb-6 flex items-center gap-6">
         <h3 class="font-display text-4xl whitespace-nowrap">{{ group.region }}</h3>
         <span class="h-px flex-1 bg-(--app-border-field)" aria-hidden="true"></span>
@@ -106,7 +97,6 @@
       @for (category of group.categories; track category.label) {
         <h4 class="eyebrow mt-8 mb-3">{{ category.label }}</h4>
 
-        <!-- En-têtes de colonnes (masqués sur mobile) -->
         <div class="wine-row wine-row--head" aria-hidden="true">
           <span>Vin</span><span>Producteur</span><span>Millésime</span><span>Formats &amp; prix</span><span></span>
         </div>
@@ -135,7 +125,6 @@
               {{ isOpen(wine) ? '−' : '+' }}
             </button>
 
-            <!-- Fiche dépliée, sur toute la largeur de la ligne -->
             @if (isOpen(wine)) {
               <div class="wine-detail" [id]="'fiche-' + $index">
                 <div>

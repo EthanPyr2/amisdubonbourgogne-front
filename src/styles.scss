@@ -1,16 +1,9 @@
-/*
- * Mode sombre par défaut. Le ThemeService (et le script de index.html)
- * change `color-scheme` sur <html> pour passer en mode clair.
- * light-dark(valeur mode clair, valeur mode sombre)
- */
 :root {
   color-scheme: dark;
 
-  /* Bordures légères (cartes) et bordures des champs de formulaire */
   --app-border-subtle: light-dark(rgb(0 0 0 / 0.1), rgb(255 255 255 / 0.15));
   --app-border-field: light-dark(rgb(0 0 0 / 0.2), rgb(255 255 255 / 0.3));
 
-  /* Fond de page (#f5f5f5 / #1a1a1a) */
   --app-bg: light-dark(var(--p-surface-50), var(--p-surface-950));
 }
 
@@ -21,6 +14,6 @@ html {
 body {
   margin: 0;
   background: var(--app-bg);
-  color: var(--p-text-color); /* #1a1a1a / #ffffff */
+  color: var(--p-text-color);
   transition: background-color 0.2s, color 0.2s;
 }

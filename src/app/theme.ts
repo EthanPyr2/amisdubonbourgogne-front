@@ -2,20 +2,7 @@ import { definePreset } from '@primeuix/themes';
 import Nora from '@primeuix/themes/nora';
 import type { Preset } from '@primeuix/themes/types';
 
-/*
- * Charte graphique « Les amis du bon Bourgogne » (mode sombre ; le mode clair en est l'inverse)
- *   Arrière-plan général ........ #1a1a1a  → cave.950
- *   Fond des blocs / contact .... #262626  → cave.900
- *   Textes principaux / titres .. #ffffff  → cave.0
- *   Textes secondaires .......... #eaeaea  → cave.100
- *   Bordures fiches produits .... #e1e1e1  → cave.200
- *   Accent (boutons, badges…) ... #b01a30  → bordeaux.500
- */
-
-// Objet séparé : permet d'ajouter des palettes primitives personnalisées
-// que le type Primitive ne connaît pas (d'où le « as Preset » plus bas).
 const personnalisation = {
-  // Couleurs primitives : palettes brutes, référencées ensuite par les tokens sémantiques
   primitive: {
     bordeaux: {
       50: '#fdf2f4',
@@ -23,7 +10,7 @@ const personnalisation = {
       200: '#f5c2ca',
       300: '#ec95a2',
       400: '#d9546a',
-      500: '#b01a30', // accent de la charte
+      500: '#b01a30',
       600: '#961628',
       700: '#7b1221',
       800: '#620e1a',
@@ -31,23 +18,22 @@ const personnalisation = {
       950: '#2c060c',
     },
     cave: {
-      0: '#ffffff', // textes principaux / titres
+      0: '#ffffff',
       50: '#f5f5f5',
-      100: '#eaeaea', // textes secondaires
-      200: '#e1e1e1', // bordures des fiches produits
+      100: '#eaeaea',
+      200: '#e1e1e1',
       300: '#c4c4c4',
       400: '#9e9e9e',
       500: '#737373',
       600: '#525252',
       700: '#3a3a3a',
       800: '#303030',
-      900: '#262626', // fond des blocs / section contact
-      950: '#1a1a1a', // arrière-plan général
+      900: '#262626',
+      950: '#1a1a1a',
     },
   },
 
   semantic: {
-    // Accent bordeaux pour tous les éléments interactifs
     primary: {
       50: '{bordeaux.50}',
       100: '{bordeaux.100}',
@@ -61,7 +47,7 @@ const personnalisation = {
       900: '{bordeaux.900}',
       950: '{bordeaux.950}',
       color: '{bordeaux.500}',
-      contrastColor: '{cave.0}', // texte blanc sur les boutons bordeaux
+      contrastColor: '{cave.0}',
       hoverColor: '{bordeaux.600}',
       activeColor: '{bordeaux.700}',
     },
@@ -71,7 +57,6 @@ const personnalisation = {
       color: '{cave.0}',
       focusColor: '{cave.0}',
     },
-    // Gris des fonds (Nora utilise slate/zinc par défaut)
     surface: {
       0: '{cave.0}',
       50: '{cave.50}',
@@ -86,18 +71,16 @@ const personnalisation = {
       900: '{cave.900}',
       950: '{cave.950}',
     },
-    // light-dark(valeur mode clair, valeur mode sombre)
     text: {
       color: 'light-dark({cave.950}, {cave.0})',
       hoverColor: 'light-dark({cave.950}, {cave.0})',
       mutedColor: 'light-dark({cave.600}, {cave.100})',
       hoverMutedColor: 'light-dark({cave.800}, {cave.0})',
     },
-    // Cartes, panneaux, blocs
     content: {
       background: 'light-dark({cave.0}, {cave.900})',
       hoverBackground: 'light-dark({cave.100}, {cave.800})',
-      borderColor: '{cave.200}', // #e1e1e1 dans les deux modes
+      borderColor: '{cave.200}',
     },
   },
 };

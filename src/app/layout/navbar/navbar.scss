@@ -9,7 +9,6 @@
     color: var(--p-text-color);
   }
 
-  // Page active : texte normal + petit trait bordeaux dessous
   &.nav-active {
     color: var(--p-text-color);
 
@@ -61,9 +60,6 @@
   }
 }
 
-// ---------- Affichage selon la largeur d'écran ----------
-// Fait ici plutôt qu'avec les classes Tailwind (hidden, lg:hidden…) : les styles de ce fichier
-// passent avant les utilitaires Tailwind, ils annuleraient donc un « hidden » posé dans le HTML.
 $desktop: 1024px;
 
 .desktop-only {
@@ -79,7 +75,6 @@ $desktop: 1024px;
   }
 }
 
-// ---------- Burger (3 traits qui se transforment en croix) ----------
 .burger {
   flex-direction: column;
   gap: 4px;
@@ -105,7 +100,6 @@ $desktop: 1024px;
   }
 }
 
-// ---------- Menu mobile ----------
 .mobile-menu {
   display: flex;
   flex-direction: column;
@@ -121,7 +115,6 @@ $desktop: 1024px;
     color: var(--p-text-color);
     text-decoration: none;
 
-    // Page active : texte en bordeaux
     &.is-active {
       color: var(--p-primary-color);
     }
