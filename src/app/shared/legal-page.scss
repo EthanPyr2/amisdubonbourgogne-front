@@ -1,0 +1,124 @@
+// Style commun aux pages légales (mentions légales, confidentialité)
+:host {
+  display: block;
+}
+
+.legal {
+  max-width: 48rem;
+  margin: 0 auto;
+  padding: 5rem 1.5rem 6rem;
+  line-height: 1.75;
+
+  h1 {
+    margin: 0 0 0.75rem;
+    font-family: var(--font-display);
+    font-size: clamp(2.5rem, 6vw, 3.5rem);
+    font-weight: 400;
+    line-height: 1.1;
+  }
+
+  h2 {
+    margin: 3rem 0 1rem;
+    font-family: var(--font-display);
+    font-size: 1.75rem;
+    font-weight: 400;
+  }
+
+  p,
+  ul,
+  dl {
+    margin: 0 0 1rem;
+    color: var(--p-text-muted-color);
+  }
+
+  strong {
+    color: var(--p-text-color);
+  }
+
+  ul {
+    padding-left: 1.25rem;
+    list-style: disc;
+  }
+
+  a {
+    color: var(--p-primary-color);
+  }
+
+  dl {
+    display: grid;
+    grid-template-columns: max-content 1fr;
+    gap: 0.5rem 1.5rem;
+
+    dt {
+      color: var(--p-text-color);
+      font-weight: 600;
+    }
+
+    dd {
+      margin: 0;
+    }
+
+    @media (max-width: 600px) {
+      grid-template-columns: 1fr;
+
+      dd {
+        margin-bottom: 0.75rem;
+      }
+    }
+  }
+
+  table {
+    width: 100%;
+    margin: 0 0 1rem;
+    border-collapse: collapse;
+    font-size: 0.9rem;
+
+    th,
+    td {
+      padding: 0.75rem 0.5rem;
+      border-bottom: 1px solid var(--app-border-subtle);
+      text-align: left;
+      vertical-align: top;
+      color: var(--p-text-muted-color);
+    }
+
+    th {
+      color: var(--p-text-color);
+      font-size: 0.75rem;
+      letter-spacing: 0.1em;
+      text-transform: uppercase;
+    }
+  }
+}
+
+.eyebrow {
+  display: flex;
+  align-items: center;
+  gap: 0.75rem;
+  margin-bottom: 1.25rem;
+  font-size: 0.75rem;
+  font-weight: 600;
+  letter-spacing: 0.25em;
+  text-transform: uppercase;
+  color: var(--p-primary-color);
+
+  &::before {
+    content: '';
+    width: 2rem;
+    height: 1px;
+    background: currentColor;
+  }
+}
+
+.updated {
+  font-size: 0.875rem;
+}
+
+// Information encore manquante : bien visible tant qu'elle n'est pas complétée
+.todo {
+  padding: 0.1rem 0.4rem;
+  border-radius: 0.25rem;
+  background: #fde68a;
+  color: #1a1a1a;
+  font-weight: 600;
+}
